@@ -3,8 +3,8 @@
 An AI-powered web application for reporting, tracking, and managing public grievances.
 
 ## Team Members
-- Sharanabasu
-- Shobha R
+- Sharan
+- Shobha Ramesh
 - Sagar Mavinagidad
 - Shreyas Kulkarni
 
