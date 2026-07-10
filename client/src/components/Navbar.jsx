@@ -15,18 +15,29 @@ function Navbar() {
       <h2>SPGMS</h2>
 
       <div style={{ display: "flex", gap: "20px" }}>
-        <Link to="/" style={{ color: "white", textDecoration: "none" }}>
-          Home
-        </Link>
+  <Link to="/" style={{ color: "white", textDecoration: "none" }}>
+    Home
+  </Link>
 
-        <Link to="/login" style={{ color: "white", textDecoration: "none" }}>
-          Login
-        </Link>
+  <Link to="/dashboard" style={{ color: "white", textDecoration: "none" }}>
+    Dashboard
+  </Link>
 
-        <Link to="/register" style={{ color: "white", textDecoration: "none" }}>
-          Register
-        </Link>
-      </div>
+  <Link to="/login" style={{ color: "white", textDecoration: "none" }}>
+    Login
+  </Link>
+
+  <Link to="/register" style={{ color: "white", textDecoration: "none" }}>
+    Register
+  </Link>
+  <Link to="/my-complaints" style={{ color: "white", textDecoration: "none" }}>
+  My Complaints
+</Link>
+
+<Link to="/profile" style={{ color: "white", textDecoration: "none" }}>
+  Profile
+</Link>
+</div>
     </nav>
   );
 }
