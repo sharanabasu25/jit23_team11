@@ -1,41 +1,57 @@
 import { Link } from "react-router-dom";
 
+const linkStyle = {
+  color: "white",
+  textDecoration: "none",
+  padding: "12px 15px",
+  borderRadius: "8px",
+  marginBottom: "8px",
+  display: "block",
+  fontSize: "17px",
+};
+
 export default function OfficerSidebar() {
   return (
     <div
       style={{
         width: "250px",
-        height: "100vh",
-        background: "#1e3a8a",
+        minHeight: "100vh",
+        background: "#1E3A8A",
         color: "white",
-        padding: "20px",
       }}
     >
-      <h2 style={{ marginBottom: "30px" }}>SPGMS</h2>
+      <div
+        style={{
+          padding: "25px",
+          borderBottom: "1px solid rgba(255,255,255,0.2)",
+          textAlign: "center",
+        }}
+      >
+        <h2>🏛 SPGMS</h2>
+        <p>Officer Panel</p>
+      </div>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        <Link to="/officer/dashboard" style={linkStyle}>
-          Dashboard
+      <div
+        style={{
+          padding: "20px",
+        }}
+      >
+        <Link style={linkStyle} to="/officer/dashboard">
+          📊 Dashboard
         </Link>
 
-        <Link to="/officer/complaints" style={linkStyle}>
-          Complaints
+        <Link style={linkStyle} to="/officer/complaints">
+          📋 Complaints
         </Link>
 
-        <Link to="/officer/profile" style={linkStyle}>
-          Profile
+        <Link style={linkStyle} to="/officer/profile">
+          👤 Profile
         </Link>
 
-        <Link to="/officer/login" style={linkStyle}>
-          Logout
+        <Link style={linkStyle} to="/officer/login">
+          🚪 Logout
         </Link>
-      </nav>
+      </div>
     </div>
   );
 }
-
-const linkStyle = {
-  color: "white",
-  textDecoration: "none",
-  fontSize: "18px",
-};
