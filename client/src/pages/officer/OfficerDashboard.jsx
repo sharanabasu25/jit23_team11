@@ -37,10 +37,29 @@ export default function OfficerDashboard() {
               gap: "20px",
             }}
           >
-            <Card title="Total Complaints" value="120" />
-            <Card title="Pending" value="45" />
-            <Card title="Resolved" value="60" />
-            <Card title="In Progress" value="15" />
+            <Card
+              title="Total Complaints"
+              value="120"
+              onClick={() => navigate("/officer/complaints")}
+            />
+
+            <Card
+              title="Pending"
+              value="45"
+              onClick={() => navigate("/officer/complaints?status=pending")}
+            />
+
+            <Card
+              title="Resolved"
+              value="60"
+              onClick={() => navigate("/officer/complaints?status=resolved")}
+            />
+
+            <Card
+              title="In Progress"
+              value="15"
+              onClick={() => navigate("/officer/complaints?status=in-progress")}
+            />
           </div>
 
           <div
@@ -70,23 +89,21 @@ export default function OfficerDashboard() {
               </button>
 
               <button
-                onClick={() => navigate("/officer/complaints")}
+                onClick={() => navigate("/officer/complaints?status=pending")}
                 style={buttonStyle}
               >
                 Pending Cases
               </button>
 
               <button
-                onClick={() => navigate("/officer/complaints")}
+                onClick={() => navigate("/officer/complaints?status=resolved")}
                 style={buttonStyle}
               >
                 Resolved Cases
               </button>
 
               <button
-                onClick={() =>
-                  alert("Reports module will be added in the next phase.")
-                }
+                onClick={() => alert("Reports module will be added later.")}
                 style={buttonStyle}
               >
                 Generate Report
@@ -99,19 +116,21 @@ export default function OfficerDashboard() {
   );
 }
 
-function Card({ title, value }) {
+function Card({ title, value, onClick }) {
   return (
     <div
+      onClick={onClick}
       style={{
         background: "white",
         padding: "25px",
         borderRadius: "10px",
         textAlign: "center",
         boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        cursor: "pointer",
+        transition: "0.2s",
       }}
     >
       <h3>{title}</h3>
-
       <h1>{value}</h1>
     </div>
   );
