@@ -1,7 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
 import OfficerSidebar from "../../components/OfficerSidebar";
 import OfficerTopbar from "../../components/OfficerTopbar";
-import { useState } from "react";
+import complaints from "../../data/complaintsData";
 
 export default function OfficerComplaints() {
   const navigate = useNavigate();
@@ -10,37 +11,11 @@ export default function OfficerComplaints() {
   const statusFilter = searchParams.get("status") || "all";
   const [search, setSearch] = useState("");
 
-  const complaints = [
-    {
-      id: "CMP001",
-      citizen: "Ravi Kumar",
-      category: "Road Damage",
-      status: "Pending",
-    },
-    {
-      id: "CMP002",
-      citizen: "Priya",
-      category: "Water Supply",
-      status: "Resolved",
-    },
-    {
-      id: "CMP003",
-      citizen: "Arun",
-      category: "Garbage",
-      status: "In Progress",
-    },
-    {
-      id: "CMP004",
-      citizen: "Megha",
-      category: "Street Light",
-      status: "Pending",
-    },
-  ];
-
   const filteredComplaints = complaints.filter((complaint) => {
     const matchesSearch =
       complaint.id.toLowerCase().includes(search.toLowerCase()) ||
-      complaint.citizen.toLowerCase().includes(search.toLowerCase());
+      complaint.citizen.toLowerCase().includes(search.toLowerCase()) ||
+      complaint.category.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -67,13 +42,14 @@ export default function OfficerComplaints() {
 
           <input
             type="text"
-            placeholder="Search by Complaint ID or Citizen Name..."
+            placeholder="Search Complaint ID, Citizen or Category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
               width: "350px",
               padding: "10px",
-              margin: "20px 0",
+              marginTop: "20px",
+              marginBottom: "20px",
               borderRadius: "6px",
               border: "1px solid #ccc",
             }}
@@ -82,8 +58,10 @@ export default function OfficerComplaints() {
           <table
             style={{
               width: "100%",
-              borderCollapse: "collapse",
               background: "white",
+              borderCollapse: "collapse",
+              borderRadius: "8px",
+              overflow: "hidden",
             }}
           >
             <thead>
@@ -91,6 +69,8 @@ export default function OfficerComplaints() {
                 <th style={th}>Complaint ID</th>
                 <th style={th}>Citizen</th>
                 <th style={th}>Category</th>
+                <th style={th}>Location</th>
+                <th style={th}>Priority</th>
                 <th style={th}>Status</th>
                 <th style={th}>Action</th>
               </tr>
@@ -102,12 +82,14 @@ export default function OfficerComplaints() {
                   <td style={td}>{complaint.id}</td>
                   <td style={td}>{complaint.citizen}</td>
                   <td style={td}>{complaint.category}</td>
+                  <td style={td}>{complaint.location}</td>
+                  <td style={td}>{complaint.priority}</td>
 
                   <td style={td}>
                     <span
                       style={{
-                        padding: "6px 10px",
-                        borderRadius: "6px",
+                        padding: "6px 12px",
+                        borderRadius: "20px",
                         color: "white",
                         background:
                           complaint.status === "Pending"
@@ -140,6 +122,20 @@ export default function OfficerComplaints() {
                   </td>
                 </tr>
               ))}
+
+              {filteredComplaints.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="7"
+                    style={{
+                      textAlign: "center",
+                      padding: "30px",
+                    }}
+                  >
+                    No complaints found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -150,6 +146,7 @@ export default function OfficerComplaints() {
 
 const th = {
   padding: "15px",
+  textAlign: "left",
 };
 
 const td = {
