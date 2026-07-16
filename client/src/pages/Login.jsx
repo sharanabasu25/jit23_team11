@@ -5,8 +5,8 @@ function Login() {
 
       <form>
         <input
-          type="email"
-          placeholder="Enter Email"
+          type="text"
+  placeholder="Enter Email or Phone Number"
           style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
         />
 
