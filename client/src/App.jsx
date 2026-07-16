@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import OfficerNotifications from "./pages/officer/OfficerNotifications";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -44,6 +45,10 @@ function App() {
           element={<OfficerComplaintDetails />}
         />
         <Route path="/officer/profile" element={<OfficerProfile />} />
+        <Route
+  path="/officer/notifications"
+  element={<OfficerNotifications />}
+/>
       </Routes>
 
       <Footer />

@@ -20,10 +20,21 @@ export default function OfficerDashboard() {
     (c) => c.status === "In Progress"
   ).length;
 
+  const highPriorityComplaints = complaints.filter(
+    (c) => c.priority === "High"
+  );
+
+  const currentDate = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <div style={{ display: "flex" }}>
       <OfficerSidebar />
-
+<div style={{ padding: "30px" }}>
       <div
         style={{
           flex: 1,
@@ -32,18 +43,69 @@ export default function OfficerDashboard() {
         }}
       >
         <OfficerTopbar />
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "30px",
+    marginBottom: "35px",
+  }}
+>
+  <div style={{ flex: 1 }}>
+    <h1
+      style={{
+        margin: 0,
+        fontSize: "52px",
+        fontWeight: "700",
+        color: "#111827",
+        whiteSpace: "nowrap",
+      }}
+    >
+      Government Officer Dashboard
+    </h1>
 
-        <div style={{ padding: "30px" }}>
-          <h1>Government Officer Dashboard</h1>
+    <p
+      style={{
+        marginTop: "15px",
+        fontSize: "20px",
+        color: "#6b7280",
+      }}
+    >
+      Welcome back! Manage public grievances efficiently.
+    </p>
+  </div>
 
-          <p
-            style={{
-              color: "#555",
-              marginBottom: "30px",
-            }}
-          >
-            Welcome back! Manage and monitor public grievances efficiently.
-          </p>
+  <div
+    style={{
+      minWidth: "230px",
+      background: "#ffffff",
+      padding: "20px",
+      borderRadius: "12px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+      textAlign: "center",
+    }}
+  >
+    <h3
+      style={{
+        margin: 0,
+        color: "#2563eb",
+      }}
+    >
+      📅 Today
+    </h3>
+
+    <p
+      style={{
+        marginTop: "12px",
+        fontSize: "18px",
+        lineHeight: "1.6",
+      }}
+    >
+      {currentDate}
+    </p>
+  </div>
+</div>
 
           <div
             style={{
@@ -83,57 +145,132 @@ export default function OfficerDashboard() {
             />
           </div>
 
+          {/* Today's Summary */}
+
           <div
             style={{
-              marginTop: "40px",
+              marginTop: "35px",
               background: "white",
               padding: "20px",
               borderRadius: "10px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}
           >
-            <h2>Quick Actions</h2>
+            <h2>📊 Today's Summary</h2>
 
-            <div
+            <ul style={{ lineHeight: "2" }}>
+              <li>Total Complaints : {totalComplaints}</li>
+              <li>Pending Complaints : {pendingComplaints}</li>
+              <li>Resolved Complaints : {resolvedComplaints}</li>
+              <li>In Progress : {inProgressComplaints}</li>
+              <li>High Priority Cases : {highPriorityComplaints.length}</li>
+            </ul>
+          </div>
+
+          {/* Recent Complaints */}
+
+          <div
+            style={{
+              marginTop: "35px",
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            <h2>📝 Recent Complaints</h2>
+
+            <table
               style={{
-                display: "flex",
-                gap: "20px",
-                marginTop: "20px",
-                flexWrap: "wrap",
+                width: "100%",
+                marginTop: "15px",
+                borderCollapse: "collapse",
               }}
             >
-              <button
-                onClick={() => navigate("/officer/complaints")}
-                style={buttonStyle}
-              >
-                View Complaints
-              </button>
+              <thead>
+                <tr
+                  style={{
+                    background: "#1E3A8A",
+                    color: "white",
+                  }}
+                >
+                  <th style={th}>Complaint ID</th>
+                  <th style={th}>Citizen</th>
+                  <th style={th}>Status</th>
+                  <th style={th}>Action</th>
+                </tr>
+              </thead>
 
-              <button
-                onClick={() =>
-                  navigate("/officer/complaints?status=pending")
-                }
-                style={buttonStyle}
-              >
-                Pending Cases
-              </button>
+              <tbody>
+                {complaints.slice(0, 3).map((complaint) => (
+                  <tr key={complaint.id}>
+                    <td style={td}>{complaint.id}</td>
+                    <td style={td}>{complaint.citizen}</td>
+                    <td style={td}>{complaint.status}</td>
 
-              <button
-                onClick={() =>
-                  navigate("/officer/complaints?status=resolved")
-                }
-                style={buttonStyle}
-              >
-                Resolved Cases
-              </button>
+                    <td style={td}>
+                      <button
+                        onClick={() =>
+                          navigate(`/officer/complaint/${complaint.id}`)
+                        }
+                        style={buttonStyle}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-              <button
-                onClick={() => alert("Reports module will be added in Day 6.")}
-                style={buttonStyle}
+          {/* High Priority */}
+
+          <div
+            style={{
+              marginTop: "35px",
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            <h2>⚠ High Priority Complaints</h2>
+
+            {highPriorityComplaints.map((complaint) => (
+              <div
+                key={complaint.id}
+                style={{
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "15px",
+                  marginTop: "15px",
+                }}
               >
-                Generate Report
-              </button>
-            </div>
+                <h3>{complaint.id}</h3>
+
+                <p>
+                  <strong>Citizen:</strong> {complaint.citizen}
+                </p>
+
+                <p>
+                  <strong>Category:</strong> {complaint.category}
+                </p>
+
+                <p>
+                  <strong>Location:</strong> {complaint.location}
+                </p>
+
+                <button
+                  style={buttonStyle}
+                  onClick={() =>
+                    navigate(`/officer/complaint/${complaint.id}`)
+                  }
+                >
+                  View Details
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -146,26 +283,51 @@ function Card({ title, value, onClick }) {
     <div
       onClick={onClick}
       style={{
-        background: "white",
-        padding: "25px",
-        borderRadius: "10px",
+        background: "#ffffff",
+        padding: "30px",
+        borderRadius: "15px",
         textAlign: "center",
         cursor: "pointer",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+        transition: "0.3s",
       }}
     >
-      <h3>{title}</h3>
+      <h3
+        style={{
+          color: "#4b5563",
+          marginBottom: "15px",
+          fontSize: "22px",
+        }}
+      >
+        {title}
+      </h3>
 
-      <h1>{value}</h1>
+      <h1
+        style={{
+          fontSize: "56px",
+          margin: 0,
+          color: "#111827",
+        }}
+      >
+        {value}
+      </h1>
     </div>
   );
 }
+const th = {
+  padding: "15px",
+};
+
+const td = {
+  padding: "15px",
+  borderBottom: "1px solid #ddd",
+};
 
 const buttonStyle = {
-  padding: "10px 18px",
-  border: "none",
-  borderRadius: "6px",
   background: "#2563eb",
   color: "white",
+  border: "none",
+  padding: "8px 14px",
+  borderRadius: "5px",
   cursor: "pointer",
 };
