@@ -6,8 +6,10 @@ from pydantic import BaseModel, Field
 
 # Import configurations
 from utils.config import settings
+import os
 # Import services
 from services.upload_service import validate_and_save_image
+from services.detector import detect_image
 
 # Configure logging
 logging.basicConfig(
@@ -48,7 +50,9 @@ class ServiceVersion(BaseModel):
 class DetectResponse(BaseModel):
     filename: str = Field(..., description="The unique name under which the file was saved")
     filepath: str = Field(..., description="The relative path to the saved file")
-    message: str = Field(..., description="Status message of the upload confirmation")
+    issue: str = Field(..., description="The type of issue detected in the image")
+    confidence: float = Field(..., description="Confidence score associated with the detected issue category")
+    message: str = Field(..., description="Status message of the upload and analysis confirmation")
 
 
 # Root Endpoint (Health check)
@@ -86,15 +90,44 @@ async def get_version():
     "/detect",
     response_model=DetectResponse,
     summary="Detect / Image Upload Endpoint",
-    description="Accepts an image via multipart/form-data, validates it, and saves it to the uploads directory."
+    description="Accepts an image via multipart/form-data, validates it, saves it to the uploads directory, and runs object detection."
 )
 async def detect(image: UploadFile = File(...)):
     """
-    Accepts an image inside a multipart form request, validates that it has a valid extension (jpg, jpeg, png),
-    and saves the file locally in the uploads folder.
+    Accepts an image inside a multipart form request, validates/saves the file locally, 
+    and runs YOLOv8 model detection to extract the highest-confidence category.
     """
-    logger.info("Detect endpoint requested for file upload.")
-    return validate_and_save_image(image)
+    logger.info("Detect endpoint requested for file upload and image analysis.")
+    
+    # 1. Upload and save the image
+    upload_result = validate_and_save_image(image)
+    
+    # Get absolute path for inference
+    saved_path = os.path.abspath(upload_result["filepath"])
+    
+    # 2. Run YOLO detection safely
+    try:
+        detection = detect_image(saved_path)
+    except Exception as e:
+        logger.error(f"Error during YOLO detection on {saved_path}: {e}", exc_info=True)
+        detection = {
+            "issue": "Unknown",
+            "confidence": 0.0
+        }
+    
+    # 3. Determine the message based on detection results
+    if detection["issue"] != "Unknown":
+        message = "Image uploaded and analyzed successfully"
+    else:
+        message = "No detectable object found"
+        
+    return {
+        "filename": upload_result["filename"],
+        "filepath": upload_result["filepath"],
+        "issue": detection["issue"],
+        "confidence": detection["confidence"],
+        "message": message
+    }
 
 
 # Entrypoint to run the server directly using Uvicorn
