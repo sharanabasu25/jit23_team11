@@ -55,6 +55,9 @@ export default function OfficerSidebar() {
         <Link style={linkStyle} to="/officer/login">
           🚪 Logout
         </Link>
+        <Link style={linkStyle} to="/officer/reports">
+  📈 Reports
+</Link>
       </div>
     </div>
   );

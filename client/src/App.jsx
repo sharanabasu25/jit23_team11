@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import OfficerNotifications from "./pages/officer/OfficerNotifications";
+import OfficerReports from "./pages/officer/OfficerReports";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -44,10 +45,15 @@ function App() {
           path="/officer/complaint/:id"
           element={<OfficerComplaintDetails />}
         />
+        <Route
+  path="/officer/reports"
+  element={<OfficerReports />}
+/>
         <Route path="/officer/profile" element={<OfficerProfile />} />
         <Route
   path="/officer/notifications"
   element={<OfficerNotifications />}
+  
 />
       </Routes>
 
