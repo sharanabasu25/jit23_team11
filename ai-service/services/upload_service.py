@@ -60,7 +60,7 @@ def validate_and_save_image(image: UploadFile) -> dict:
         logger.error(f"Error saving file {filename}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save image locally: {str(e)}"
+            detail="Failed to save image locally."
         )
     finally:
         image.file.close()

@@ -109,6 +109,34 @@ def run_tests():
         if os.path.exists(txt_name):
             os.remove(txt_name)
             
+    # 6. Test POST /detect with Corrupted Image (gibberish data saved as PNG)
+    print("\n--- 6. Testing POST /detect with Corrupted Image ---")
+    corr_name = "test_api_corrupted.png"
+    with open(corr_name, "wb") as f:
+        f.write(b"NOT A REAL IMAGE DATA - SYSTEM FAILS PILLOW VERIFY")
+        
+    try:
+        with open(corr_name, "rb") as f:
+            files = {"image": (corr_name, f, "image/png")}
+            r = requests.post(f"{base_url}/detect", files=files)
+            print("POST /detect (corrupted.png) Status:", r.status_code)
+            res_json = r.json()
+            print("POST /detect (corrupted.png) JSON Output:")
+            for k, v in res_json.items():
+                print(f"  {k}: {v}")
+                
+            assert r.status_code == 200
+            assert res_json["issue"] == "Unknown"
+            assert res_json["confidence"] == 0.0
+            assert res_json["message"] == "No detectable object found"
+            print("Corrupted image response verified successfully!")
+    except Exception as e:
+        print(f"Detection with corrupted image failed: {e}")
+        sys.exit(1)
+    finally:
+        if os.path.exists(corr_name):
+            os.remove(corr_name)
+
     print("\nALL TEST CASES PASSED SUCCESSFULLY!")
 
 if __name__ == "__main__":
