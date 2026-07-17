@@ -99,8 +99,47 @@ Once the application starts, you can access the service endpoints at:
   * Action: `GET http://localhost:8000/version`
   * Response: `{"version": "1.0"}`
 
+* **Grievance Image Upload / Detection Endpoint**:
+  * Action: `POST http://localhost:8000/detect`
+  * Body: `multipart/form-data` with parameter name `image` (valid extensions: `.jpg`, `.jpeg`, `.png`)
+  * Action Description: Uploads and sanitizes the grievance attachment media, saves it, and executes object scanning via `YOLODetectorService`.
+  * **Adjusting Threshold**: You can configure the confidence threshold inside your `.env`:
+    `YOLO_CONFIDENCE_THRESHOLD=0.50` (Will use `0.50` default if not specified)
+
+  * **Example Success Response (Object Detected)**:
+    ```json
+    {
+      "filename": "711b891e49bc4a0eb4cfef18edb9c510_bus.jpg",
+      "filepath": "uploads/711b891e49bc4a0eb4cfef18edb9c510_bus.jpg",
+      "issue": "bus",
+      "confidence": 0.87,
+      "message": "Image uploaded and analyzed successfully"
+    }
+    ```
+
+  * **Example Response (No Detections or Below Threshold)**:
+    ```json
+    {
+      "filename": "bd29f03d17b74b25ade26080d195aa33_blank.png",
+      "filepath": "uploads/bd29f03d17b74b25ade26080d195aa33_blank.png",
+      "issue": "Unknown",
+      "confidence": 0.0,
+      "message": "No detectable object found"
+    }
+    ```
+
 * **Automatic Swagger API Documentation**:
   * `GET http://localhost:8000/docs`
 
 * **ReDoc Documentation**:
   * `GET http://localhost:8000/redoc`
+
+---
+
+## YOLO Model Characteristics & Limitations
+
+The current setup utilizes a pre-trained **YOLOv8 Nano (`yolov8n.pt`)** model. Developers should keep the following design parameters in mind:
+1. **Class Scope Limitations**: The model detects standard COCO dataset classes (e.g. `person`, `car`, `fire hydrant`, `bench`). It does not natively detect specific civic grievances such as "potholes", "uncollected waste", or "blocked drains" without custom mapping.
+2. **Context-Blindness**: Objects are identified purely by visual features. The service logic cannot determine the administrative department or priority without additional domain-specific rules.
+3. **Resolution & Occlusion**: Input image size defaults to `640x640` pixels during inference. Night time captures, heavy overlaps, or highly truncated objects might drop below the confidence threshold.
+4. **Threshold Impact**: The default threshold is configured at `0.50` (50%). Tuning the threshold down will increase recall (detecting more objects) but can lead to label noise, while raising it will prioritize precision.

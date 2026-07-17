@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     ENV: str = "development"
     APP_NAME: str = "Smart Public Grievance Management System - AI Service"
     API_VERSION: str = "1.0"
+    YOLO_CONFIDENCE_THRESHOLD: float = 0.50
 
     # Use dotenv configuration to load variables from file
     model_config = SettingsConfigDict(
