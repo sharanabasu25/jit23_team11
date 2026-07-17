@@ -61,3 +61,78 @@ class YOLODetectorService:
         except Exception as e:
             logger.error(f"Detection failed: {e}", exc_info=True)
             raise RuntimeError(f"Object detection execution failed: {e}")
+
+    @classmethod
+    def detect_image(cls, image_path: str) -> dict:
+        """
+        Wrapper to run YOLOv8 object detection on a single image.
+        Applies a confidence threshold of 0.50 and returns the highest confidence detection.
+        """
+        return detect_image(image_path)
+
+def detect_image(image_path: str) -> dict:
+    """
+    Runs YOLOv8 object detection on a single image.
+    Applies a confidence threshold of 0.50 and returns the highest confidence detection.
+    
+    Expected result format:
+    {
+        "issue": "detected_class",
+        "confidence": 0.94
+    }
+    
+    If nothing is detected (or conf < 0.50):
+    {
+        "issue": "Unknown",
+        "confidence": 0.0
+    }
+    """
+    try:
+        # Validate path exists
+        if not image_path or not os.path.exists(image_path):
+            logger.warning(f"Image path does not exist or was empty: {image_path}")
+            return {
+                "issue": "Unknown",
+                "confidence": 0.0
+            }
+
+        # Lazy load the singleton YOLO model
+        model = YOLODetectorService.get_model()
+        
+        logger.info(f"Running YOLO inference on {image_path} with confidence threshold 0.50")
+        
+        # Run inference using the threshold parameter
+        results = model(image_path, conf=0.50)
+        
+        best_conf = 0.0
+        best_class = "Unknown"
+        
+        # Process the single image's results
+        if results and len(results) > 0:
+            boxes = results[0].boxes
+            for box in boxes:
+                # Extract confidence value
+                conf = float(box.conf[0])
+                if conf > best_conf:
+                    best_conf = conf
+                    class_id = int(box.cls[0])
+                    best_class = results[0].names[class_id]
+        
+        # Verify best confidence meets expected threshold
+        if best_conf >= 0.50:
+            return {
+                "issue": best_class,
+                "confidence": round(best_conf, 2)
+            }
+        else:
+            return {
+                "issue": "Unknown",
+                "confidence": 0.0
+            }
+    except Exception as e:
+        logger.error(f"Error executing detect_image on {image_path}: {e}", exc_info=True)
+        # Proper error handling returning default unknown result as robust fallback
+        return {
+            "issue": "Unknown",
+            "confidence": 0.0
+        }
