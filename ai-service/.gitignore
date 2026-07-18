@@ -24,3 +24,7 @@ dataset_expansion/annotation_workspace/
 dataset_expansion/raw/
 dataset_expansion/reviewed/
 dataset_v2/
+dataset_improvement/source/
+dataset_v3/images/
+dataset_v3/labels/
+
