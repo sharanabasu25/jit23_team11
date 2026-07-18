@@ -2,6 +2,11 @@ import { useNavigate } from "react-router-dom";
 import OfficerSidebar from "../../components/OfficerSidebar";
 import OfficerTopbar from "../../components/OfficerTopbar";
 import complaints from "../../data/complaintsData";
+import LiveClock from "../../components/LiveClock";
+import CategoryStats from "../../components/CategoryStats";
+import ProgressCard from "../../components/ProgressCard";
+import OfficerPerformance from "../../components/OfficerPerformance";
+import ActivityTimeline from "../../components/ActivityTimeline";
 
 export default function OfficerDashboard() {
   const navigate = useNavigate();
@@ -34,7 +39,7 @@ export default function OfficerDashboard() {
   return (
     <div style={{ display: "flex" }}>
       <OfficerSidebar />
-<div style={{ padding: "30px" }}>
+
       <div
         style={{
           flex: 1,
@@ -43,69 +48,78 @@ export default function OfficerDashboard() {
         }}
       >
         <OfficerTopbar />
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "30px",
-    marginBottom: "35px",
-  }}
->
-  <div style={{ flex: 1 }}>
-    <h1
-      style={{
-        margin: 0,
-        fontSize: "52px",
-        fontWeight: "700",
-        color: "#111827",
-        whiteSpace: "nowrap",
-      }}
-    >
-      Government Officer Dashboard
-    </h1>
 
-    <p
-      style={{
-        marginTop: "15px",
-        fontSize: "20px",
-        color: "#6b7280",
-      }}
-    >
-      Welcome back! Manage public grievances efficiently.
-    </p>
-  </div>
+        <div style={{ padding: "30px" }}>
 
-  <div
-    style={{
-      minWidth: "230px",
-      background: "#ffffff",
-      padding: "20px",
-      borderRadius: "12px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-      textAlign: "center",
-    }}
-  >
-    <h3
-      style={{
-        margin: 0,
-        color: "#2563eb",
-      }}
-    >
-      📅 Today
-    </h3>
+          {/* Header */}
 
-    <p
-      style={{
-        marginTop: "12px",
-        fontSize: "18px",
-        lineHeight: "1.6",
-      }}
-    >
-      {currentDate}
-    </p>
-  </div>
-</div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: "30px",
+              marginBottom: "35px",
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "34px",
+                  fontWeight: "700",
+                  color: "#111827",
+                  whiteSpace: "nowrap",
+overflow: "hidden",
+textOverflow: "ellipsis",
+                }}
+              >
+                Government Officer Dashboard
+              </h1>
+
+              <p
+                style={{
+                  marginTop: "12px",
+                  fontSize: "18px",
+                  color: "#6b7280",
+                }}
+              >
+                Welcome back! Manage public grievances efficiently.
+              </p>
+            </div>
+
+            <div
+              style={{
+                minWidth: "230px",
+                background: "#ffffff",
+                padding: "20px",
+                borderRadius: "12px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                textAlign: "center",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  color: "#2563eb",
+                }}
+              >
+                📅 Today
+              </h3>
+
+              <p
+                style={{
+                  marginTop: "12px",
+                  fontSize: "18px",
+                  lineHeight: "1.6",
+                }}
+              >
+                {currentDate}
+              </p>
+            </div>
+          </div>
+
+          {/* Dashboard Cards */}
 
           <div
             style={{
@@ -145,7 +159,57 @@ export default function OfficerDashboard() {
             />
           </div>
 
-          {/* Today's Summary */}
+          {/* Live Clock + Performance */}
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "20px",
+              marginTop: "30px",
+            }}
+          >
+            <LiveClock />
+
+            <OfficerPerformance />
+          </div>
+
+          {/* Category Statistics */}
+
+          <CategoryStats />
+
+          {/* Progress Bars */}
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3,1fr)",
+              gap: "20px",
+              marginTop: "30px",
+            }}
+          >
+            <ProgressCard
+              title="Pending"
+              value={pendingComplaints}
+              total={totalComplaints}
+              color="#f59e0b"
+            />
+
+            <ProgressCard
+              title="Resolved"
+              value={resolvedComplaints}
+              total={totalComplaints}
+              color="#22c55e"
+            />
+
+            <ProgressCard
+              title="In Progress"
+              value={inProgressComplaints}
+              total={totalComplaints}
+              color="#3b82f6"
+            />
+          </div>
+                    {/* Today's Summary */}
 
           <div
             style={{
@@ -162,7 +226,7 @@ export default function OfficerDashboard() {
               <li>Total Complaints : {totalComplaints}</li>
               <li>Pending Complaints : {pendingComplaints}</li>
               <li>Resolved Complaints : {resolvedComplaints}</li>
-              <li>In Progress : {inProgressComplaints}</li>
+              <li>In Progress Complaints : {inProgressComplaints}</li>
               <li>High Priority Cases : {highPriorityComplaints.length}</li>
             </ul>
           </div>
@@ -196,24 +260,45 @@ export default function OfficerDashboard() {
                 >
                   <th style={th}>Complaint ID</th>
                   <th style={th}>Citizen</th>
+                  <th style={th}>Category</th>
+                  <th style={th}>Priority</th>
                   <th style={th}>Status</th>
                   <th style={th}>Action</th>
                 </tr>
               </thead>
 
               <tbody>
-                {complaints.slice(0, 3).map((complaint) => (
+                {complaints.slice(0, 5).map((complaint) => (
                   <tr key={complaint.id}>
                     <td style={td}>{complaint.id}</td>
                     <td style={td}>{complaint.citizen}</td>
-                    <td style={td}>{complaint.status}</td>
+                    <td style={td}>{complaint.category}</td>
+                    <td style={td}>{complaint.priority}</td>
+
+                    <td style={td}>
+                      <span
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "20px",
+                          color: "white",
+                          background:
+                            complaint.status === "Pending"
+                              ? "#f59e0b"
+                              : complaint.status === "Resolved"
+                              ? "#22c55e"
+                              : "#3b82f6",
+                        }}
+                      >
+                        {complaint.status}
+                      </span>
+                    </td>
 
                     <td style={td}>
                       <button
+                        style={buttonStyle}
                         onClick={() =>
                           navigate(`/officer/complaint/${complaint.id}`)
                         }
-                        style={buttonStyle}
                       >
                         View
                       </button>
@@ -224,7 +309,7 @@ export default function OfficerDashboard() {
             </table>
           </div>
 
-          {/* High Priority */}
+          {/* High Priority Complaints */}
 
           <div
             style={{
@@ -237,46 +322,63 @@ export default function OfficerDashboard() {
           >
             <h2>⚠ High Priority Complaints</h2>
 
-            {highPriorityComplaints.map((complaint) => (
-              <div
-                key={complaint.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  padding: "15px",
-                  marginTop: "15px",
-                }}
-              >
-                <h3>{complaint.id}</h3>
-
-                <p>
-                  <strong>Citizen:</strong> {complaint.citizen}
-                </p>
-
-                <p>
-                  <strong>Category:</strong> {complaint.category}
-                </p>
-
-                <p>
-                  <strong>Location:</strong> {complaint.location}
-                </p>
-
-                <button
-                  style={buttonStyle}
-                  onClick={() =>
-                    navigate(`/officer/complaint/${complaint.id}`)
-                  }
+            {highPriorityComplaints.length === 0 ? (
+              <p>No high priority complaints.</p>
+            ) : (
+              highPriorityComplaints.map((complaint) => (
+                <div
+                  key={complaint.id}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: "10px",
+                    padding: "18px",
+                    marginTop: "15px",
+                  }}
                 >
-                  View Details
-                </button>
-              </div>
-            ))}
+                  <h3 style={{ marginTop: 0 }}>
+                    {complaint.id}
+                  </h3>
+
+                  <p>
+                    <strong>Citizen:</strong> {complaint.citizen}
+                  </p>
+
+                  <p>
+                    <strong>Category:</strong> {complaint.category}
+                  </p>
+
+                  <p>
+                    <strong>Location:</strong> {complaint.location}
+                  </p>
+
+                  <p>
+                    <strong>Status:</strong> {complaint.status}
+                  </p>
+
+                  <button
+                    style={buttonStyle}
+                    onClick={() =>
+                      navigate(`/officer/complaint/${complaint.id}`)
+                    }
+                  >
+                    View Details
+                  </button>
+                </div>
+              ))
+            )}
+
           </div>
+                    {/* Activity Timeline */}
+
+          <ActivityTimeline />
+
         </div>
       </div>
     </div>
   );
 }
+
+/* Dashboard Card */
 
 function Card({ title, value, onClick }) {
   return (
@@ -290,6 +392,16 @@ function Card({ title, value, onClick }) {
         cursor: "pointer",
         boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
         transition: "0.3s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-5px)";
+        e.currentTarget.style.boxShadow =
+          "0 8px 18px rgba(0,0,0,0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0px)";
+        e.currentTarget.style.boxShadow =
+          "0 4px 12px rgba(0,0,0,0.08)";
       }}
     >
       <h3
@@ -314,20 +426,27 @@ function Card({ title, value, onClick }) {
     </div>
   );
 }
+
+/* Common Styles */
+
 const th = {
   padding: "15px",
+  textAlign: "left",
+  fontWeight: "600",
 };
 
 const td = {
   padding: "15px",
-  borderBottom: "1px solid #ddd",
+  borderBottom: "1px solid #e5e7eb",
 };
 
 const buttonStyle = {
   background: "#2563eb",
   color: "white",
   border: "none",
-  padding: "8px 14px",
-  borderRadius: "5px",
+  padding: "8px 15px",
+  borderRadius: "6px",
   cursor: "pointer",
+  fontWeight: "500",
 };
+
