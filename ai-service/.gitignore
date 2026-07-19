@@ -20,6 +20,7 @@ __pycache__/
 
 # Machine Learning Outputs and Workspaces
 training/runs/
+training/evaluations/**/predictions/
 dataset_expansion/annotation_workspace/
 dataset_expansion/raw/
 dataset_expansion/reviewed/
