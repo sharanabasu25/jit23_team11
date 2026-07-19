@@ -21,6 +21,9 @@ __pycache__/
 # Machine Learning Outputs and Workspaces
 training/runs/
 training/evaluations/**/predictions/
+real_world_test_v1/predictions/
+external_pothole_split/train_candidates/
+external_pothole_split/external_test/
 dataset_expansion/annotation_workspace/
 dataset_expansion/raw/
 dataset_expansion/reviewed/
@@ -28,4 +31,6 @@ dataset_v2/
 dataset_improvement/source/
 dataset_v3/images/
 dataset_v3/labels/
+dataset_v4/images/
+dataset_v4/labels/
 
