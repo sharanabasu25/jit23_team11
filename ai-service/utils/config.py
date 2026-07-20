@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     APP_NAME: str = "Smart Public Grievance Management System - AI Service"
     API_VERSION: str = "1.0"
     YOLO_CONFIDENCE_THRESHOLD: float = 0.50
+    YOLO_MODEL_PATH: str = os.path.normpath(
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "best.pt")
+    )
+
 
     # Use dotenv configuration to load variables from file
     model_config = SettingsConfigDict(

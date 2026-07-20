@@ -6,11 +6,12 @@ from utils.config import settings
 
 logger = logging.getLogger("ai-service.detector")
 
-# Define the models directory and default path relative to this file
-MODELS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
+# Define default path from configuration settings
+DEFAULT_MODEL_PATH = settings.YOLO_MODEL_PATH
+# Fallback to local default yolov8n.pt if settings model weight is missing
+FALLBACK_MODEL_PATH = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "yolov8n.pt")
 )
-DEFAULT_MODEL_PATH = os.path.normpath(os.path.join(MODELS_DIR, "yolov8n.pt"))
 
 class YOLODetectorService:
     _instance = None
@@ -22,11 +23,19 @@ class YOLODetectorService:
         return cls._instance
 
     @classmethod
-    def get_model(cls, model_path: str = DEFAULT_MODEL_PATH) -> YOLO:
+    def get_model(cls, model_path: str = None) -> YOLO:
         """
         Loads the YOLO model only once (singleton) and returns the instance.
         Handles model loading errors safely with descriptive logs.
         """
+        if model_path is None:
+            # Check if configured path exists; if not, fallback
+            if os.path.exists(DEFAULT_MODEL_PATH):
+                model_path = DEFAULT_MODEL_PATH
+            else:
+                logger.warning(f"Configured model path {DEFAULT_MODEL_PATH} not found. Falling back to {FALLBACK_MODEL_PATH}")
+                model_path = FALLBACK_MODEL_PATH
+
         if cls._model is None:
             try:
                 logger.info(f"Model Loading - Attempting to load YOLOv8 model from path: {model_path}")

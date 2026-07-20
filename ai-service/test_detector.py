@@ -57,6 +57,8 @@ def main():
         if os.path.exists(blank_image_path):
             os.remove(blank_image_path)
             logger.info("Cleaned up blank test image.")
+            
 
 if __name__ == "__main__":
     main()
+ 
