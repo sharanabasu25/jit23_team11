@@ -1,0 +1,11 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Smart Public Grievance Management System - Database Layer",
+  "main": "config/db.js",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.3.1"
+  }
+}
