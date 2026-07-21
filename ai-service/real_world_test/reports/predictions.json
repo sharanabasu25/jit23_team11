@@ -1,0 +1,152 @@
+[
+  {
+    "model": "20ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 1,
+    "detections": [
+      {
+        "class_id": 1,
+        "class_name": "Electricity",
+        "confidence": 0.5663,
+        "bbox": [
+          183.38,
+          12.69,
+          444.81,
+          606.9
+        ]
+      }
+    ]
+  },
+  {
+    "model": "20ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 1,
+    "detections": [
+      {
+        "class_id": 1,
+        "class_name": "Electricity",
+        "confidence": 0.5663,
+        "bbox": [
+          183.38,
+          12.69,
+          444.81,
+          606.9
+        ]
+      }
+    ]
+  },
+  {
+    "model": "20ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "electricity_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "pothole_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "20ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.25,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.5,
+    "detections_count": 0,
+    "detections": []
+  },
+  {
+    "model": "30ep",
+    "image": "water_leakage_001.jpg",
+    "threshold": 0.75,
+    "detections_count": 0,
+    "detections": []
+  }
+]

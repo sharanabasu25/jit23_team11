@@ -6,11 +6,12 @@ from utils.config import settings
 
 logger = logging.getLogger("ai-service.detector")
 
-# Define the models directory and default path relative to this file
-MODELS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
+# Define default path from configuration settings
+DEFAULT_MODEL_PATH = settings.YOLO_MODEL_PATH
+# Fallback to local default yolov8n.pt if settings model weight is missing
+FALLBACK_MODEL_PATH = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "yolov8n.pt")
 )
-DEFAULT_MODEL_PATH = os.path.normpath(os.path.join(MODELS_DIR, "yolov8n.pt"))
 
 class YOLODetectorService:
     _instance = None
@@ -22,11 +23,19 @@ class YOLODetectorService:
         return cls._instance
 
     @classmethod
-    def get_model(cls, model_path: str = DEFAULT_MODEL_PATH) -> YOLO:
+    def get_model(cls, model_path: str = None) -> YOLO:
         """
         Loads the YOLO model only once (singleton) and returns the instance.
         Handles model loading errors safely with descriptive logs.
         """
+        if model_path is None:
+            # Check if configured path exists; if not, fallback
+            if os.path.exists(DEFAULT_MODEL_PATH):
+                model_path = DEFAULT_MODEL_PATH
+            else:
+                logger.warning(f"Configured model path {DEFAULT_MODEL_PATH} not found. Falling back to {FALLBACK_MODEL_PATH}")
+                model_path = FALLBACK_MODEL_PATH
+
         if cls._model is None:
             try:
                 logger.info(f"Model Loading - Attempting to load YOLOv8 model from path: {model_path}")
@@ -64,6 +73,58 @@ class YOLODetectorService:
         """
         return detect_image(image_path)
 
+def determine_routing(best_class: str, best_conf: float) -> dict:
+    """
+    Applies the dual-tier routing logic and department mapping:
+    - confidence >= 0.75 -> AUTO_ROUTE
+    - 0.25 <= confidence < 0.75 -> HUMAN_REVIEW
+    - confidence < 0.25 -> SUPPRESS
+    
+    Department Mapping:
+    - pothole -> Public Works Department
+    - electricity -> Electricity Department
+    - water_leakage -> Water Supply Board
+    """
+    routing_action = "SUPPRESS"
+    department = "None"
+    class_name = "Unknown"
+    mapped_conf = 0.0
+
+    if best_class and best_class != "Unknown" and best_conf >= 0.25:
+        cls_lower = best_class.lower()
+        if "pothole" in cls_lower:
+            class_name = "pothole"
+            department = "Public Works Department"
+        elif "electricity" in cls_lower:
+            class_name = "electricity"
+            department = "Electricity Department"
+        elif "water_leakage" in cls_lower or "water leakage" in cls_lower:
+            class_name = "water_leakage"
+            department = "Water Supply Board"
+        else:
+            class_name = best_class
+            department = "Unknown Department"
+            
+        mapped_conf = round(best_conf, 4)
+
+        if best_conf >= 0.75:
+            routing_action = "AUTO_ROUTE"
+        else:
+            routing_action = "HUMAN_REVIEW"
+    else:
+        routing_action = "SUPPRESS"
+        department = "None"
+        class_name = "Unknown"
+        mapped_conf = 0.0
+
+    return {
+        "class_name": class_name,
+        "confidence": mapped_conf,
+        "routing_action": routing_action,
+        "department": department,
+        "model_version": "V6"
+    }
+
 def detect_image(image_path: str) -> dict:
     """
     Runs YOLOv8 object detection on a single image.
@@ -71,31 +132,22 @@ def detect_image(image_path: str) -> dict:
     
     Expected result structure:
     {
-        "issue": "detected_class",
-        "confidence": 0.94
-    }
-    
-    If nothing is detected (e.g. Below threshold, empty image) or execution fails:
-    {
-        "issue": "Unknown",
-        "confidence": 0.0
+        "class_name": "detected_class",
+        "confidence": 0.94,
+        "routing_action": "AUTO_ROUTE",
+        "department": "Public Works Department",
+        "model_version": "V6"
     }
     """
     try:
         # 1. Handle missing files gracefully
         if not image_path:
             logger.warning("Image Processing - Failed: No image path provided.")
-            return {
-                "issue": "Unknown",
-                "confidence": 0.0
-            }
+            return determine_routing("Unknown", 0.0)
 
         if not os.path.exists(image_path):
             logger.warning(f"Image Processing - Failed: File does not exist at '{image_path}'")
-            return {
-                "issue": "Unknown",
-                "confidence": 0.0
-            }
+            return determine_routing("Unknown", 0.0)
 
         # 2. Check for invalid or corrupted image content using Pillow
         try:
@@ -103,19 +155,15 @@ def detect_image(image_path: str) -> dict:
                 img.verify()
         except UnidentifiedImageError:
             logger.error(f"Image Processing - Failed: Invalid image format (UnidentifiedImageError) for '{image_path}'")
-            return {
-                "issue": "Unknown",
-                "confidence": 0.0
-            }
+            return determine_routing("Unknown", 0.0)
         except (IOError, SyntaxError) as e:
             logger.error(f"Image Processing - Failed: Corrupted image file (IOError/SyntaxError) for '{image_path}'. Error: {e}")
-            return {
-                "issue": "Unknown",
-                "confidence": 0.0
-            }
+            return determine_routing("Unknown", 0.0)
 
-        # 3. Retrieve threshold from configuration environment (defaults to 0.50)
-        threshold = getattr(settings, "YOLO_CONFIDENCE_THRESHOLD", 0.50)
+        # 3. Retrieve threshold from configuration environment (defaults to 0.25)
+        # We query the model with threshold to filter out garbage detections early,
+        # but apply strict determine_routing boundary checks.
+        threshold = getattr(settings, "YOLO_CONFIDENCE_THRESHOLD", 0.25)
         logger.info(f"Image Processing - Running YOLO inference on '{image_path}' (threshold: {threshold:.2f})")
         
         # 4. Lazy-load model and run inference (wrapped in safe loading checks)
@@ -137,23 +185,12 @@ def detect_image(image_path: str) -> dict:
                     best_class = results[0].names[class_id]
         
         # 5. Formulate return object
-        if best_conf >= threshold:
-            logger.info(f"Detection Results - Success: Found '{best_class}' with confidence {best_conf:.2f}")
-            return {
-                "issue": best_class,
-                "confidence": round(best_conf, 2)
-            }
-        else:
-            logger.info(f"Detection Results - No detection: No object found above confidence threshold of {threshold:.2f}")
-            return {
-                "issue": "Unknown",
-                "confidence": 0.0
-            }
+        routing_details = determine_routing(best_class, best_conf)
+        logger.info(f"Detection Results - Class: {routing_details['class_name']}, Conf: {routing_details['confidence']:.4f}, Action: {routing_details['routing_action']}")
+        return routing_details
 
     except Exception as e:
         logger.error(f"Detection Errors - Image processing failed: {e}", exc_info=True)
         # Returns generic fallback without exposing exception details
-        return {
-            "issue": "Unknown",
-            "confidence": 0.0
-        }
+        return determine_routing("Unknown", 0.0)
+
