@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ENV: str = "development"
     APP_NAME: str = "Smart Public Grievance Management System - AI Service"
     API_VERSION: str = "1.0"
-    YOLO_CONFIDENCE_THRESHOLD: float = 0.50
+    YOLO_CONFIDENCE_THRESHOLD: float = 0.25
     YOLO_MODEL_PATH: str = os.path.normpath(
         os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "best.pt")
     )

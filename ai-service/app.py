@@ -50,8 +50,12 @@ class ServiceVersion(BaseModel):
 class DetectResponse(BaseModel):
     filename: str = Field(..., description="The unique name under which the file was saved")
     filepath: str = Field(..., description="The relative path to the saved file")
-    issue: str = Field(..., description="The type of issue detected in the image")
-    confidence: float = Field(..., description="Confidence score associated with the detected issue category")
+    issue: str = Field(..., description="The type of issue detected in the image (backwards compatible)")
+    class_name: str = Field(..., description="The type of issue detected in the image")
+    confidence: float = Field(..., description="Confidence score associated with the detected class/issue")
+    routing_action: str = Field(..., description="The automatic or manual review action to take (AUTO_ROUTE, HUMAN_REVIEW, SUPPRESS)")
+    department: str = Field(..., description="The agency to route the grievance to")
+    model_version: str = Field(..., description="Semantic or major version of model used")
     message: str = Field(..., description="Status message of the upload and analysis confirmation")
 
 
@@ -110,13 +114,11 @@ async def detect(image: UploadFile = File(...)):
         detection = detect_image(saved_path)
     except Exception as e:
         logger.error(f"Error during YOLO detection on {saved_path}: {e}", exc_info=True)
-        detection = {
-            "issue": "Unknown",
-            "confidence": 0.0
-        }
+        from services.detector import determine_routing
+        detection = determine_routing("Unknown", 0.0)
     
     # 3. Determine the message based on detection results
-    if detection["issue"] != "Unknown":
+    if detection["routing_action"] != "SUPPRESS":
         message = "Image uploaded and analyzed successfully"
     else:
         message = "No detectable object found"
@@ -124,8 +126,12 @@ async def detect(image: UploadFile = File(...)):
     return {
         "filename": upload_result["filename"],
         "filepath": upload_result["filepath"],
-        "issue": detection["issue"],
+        "issue": detection["class_name"],
+        "class_name": detection["class_name"],
         "confidence": detection["confidence"],
+        "routing_action": detection["routing_action"],
+        "department": detection["department"],
+        "model_version": detection["model_version"],
         "message": message
     }
 
