@@ -49,8 +49,8 @@ const bootstrap = async () => {
     // Connect to MongoDB Atlas
     await connectDB();
 
-    // Route mountings will go here in subsequent incremental phases
-    // app.use('/api/auth', require('./routes/authRoutes'));
+    // Route mountings
+    app.use('/api/auth', require('./routes/authRoutes'));
     // app.use('/api/complaints', require('./routes/complaintRoutes'));
     // app.use('/api/officers', require('./routes/officerRoutes'));
 
