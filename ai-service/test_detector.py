@@ -49,7 +49,7 @@ def main():
         logger.info(f"Result parsed (Blank image): {res_neg}")
         
         # Verify conditions
-        assert res_neg["issue"] == "Unknown", f"Expected 'Unknown' issue, got {res_neg['issue']}"
+        assert res_neg["class_name"] == "Unknown", f"Expected 'Unknown' class_name, got {res_neg['class_name']}"
         assert res_neg["confidence"] == 0.0, f"Expected 0.0 confidence, got {res_neg['confidence']}"
         logger.info("SUCCESS: Blank image correctly returned 'Unknown' and 0.0 confidence.")
     finally:
