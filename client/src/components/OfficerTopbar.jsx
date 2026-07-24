@@ -1,4 +1,17 @@
+import { useNavigate } from "react-router-dom";
+
 export default function OfficerTopbar() {
+  const navigate = useNavigate();
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("officerLoggedIn");
+    navigate("/officer/login");
+  };
+
   return (
     <div
       style={{
@@ -23,9 +36,12 @@ export default function OfficerTopbar() {
           gap: "15px",
         }}
       >
-        <span style={{ fontWeight: "bold" }}>👤 Officer</span>
+        <span style={{ fontWeight: "bold", color: "#1e3a8a" }}>
+          👤 {user ? user.fullName : "Officer"}
+        </span>
 
         <button
+          onClick={handleLogout}
           style={{
             background: "#dc2626",
             color: "white",
@@ -33,6 +49,7 @@ export default function OfficerTopbar() {
             padding: "8px 15px",
             borderRadius: "5px",
             cursor: "pointer",
+            fontWeight: "bold"
           }}
         >
           Logout
