@@ -52,7 +52,7 @@ const bootstrap = async () => {
     // Route mountings
     app.use('/api/auth', require('./routes/authRoutes'));
     app.use('/api/complaints', require('./routes/complaintRoutes'));
-    // app.use('/api/officers', require('./routes/officerRoutes'));
+    app.use('/api/officers', require('./routes/officerRoutes'));
 
     // 4. Central error and 404 handlers
     app.use(notFound);
