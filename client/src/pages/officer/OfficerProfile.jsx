@@ -1,26 +1,21 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import OfficerSidebar from "../../components/OfficerSidebar";
 import OfficerTopbar from "../../components/OfficerTopbar";
 
 export default function OfficerProfile() {
-  const [officer, setOfficer] = useState({
-    name: "Rajesh Kumar",
-    officerId: "OFF102",
-    department: "Public Works Department",
-    email: "rajesh@spgms.gov.in",
-    phone: "9876543210",
-  });
+  const navigate = useNavigate();
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
 
-  const handleChange = (e) => {
-    setOfficer({
-      ...officer,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSave = () => {
-    alert("Profile updated successfully!");
-  };
+  if (!user) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <h2>Access Denied</h2>
+        <p>Please log in to view the officer profile.</p>
+        <button onClick={() => navigate("/officer/login")} style={{ padding: "10px 20px", background: "#2563eb", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Go to Login</button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex" }}>
@@ -70,53 +65,37 @@ export default function OfficerProfile() {
             <Label text="Officer Name" />
             <Input
               name="name"
-              value={officer.name}
-              onChange={handleChange}
+              value={user.fullName}
+              readOnly
             />
 
-            <Label text="Officer ID" />
+            <Label text="Officer User ID" />
             <Input
               name="officerId"
-              value={officer.officerId}
-              onChange={handleChange}
-            />
-
-            <Label text="Department" />
-            <Input
-              name="department"
-              value={officer.department}
-              onChange={handleChange}
+              value={user._id}
+              readOnly
             />
 
             <Label text="Email" />
             <Input
               name="email"
-              value={officer.email}
-              onChange={handleChange}
+              value={user.email}
+              readOnly
             />
 
             <Label text="Phone Number" />
             <Input
               name="phone"
-              value={officer.phone}
-              onChange={handleChange}
+              value={user.phoneNumber || "N/A"}
+              readOnly
             />
 
-            <button
-              onClick={handleSave}
-              style={{
-                marginTop: "20px",
-                background: "#2563eb",
-                color: "white",
-                border: "none",
-                padding: "12px 20px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "16px",
-              }}
-            >
-              Save Changes
-            </button>
+            <Label text="System Permission Scope" />
+            <Input
+              name="role"
+              value={user.role}
+              readOnly
+            />
           </div>
         </div>
       </div>
@@ -148,6 +127,8 @@ function Input(props) {
         padding: "12px",
         borderRadius: "6px",
         border: "1px solid #ccc",
+        background: "#f8fafc",
+        color: "#475569"
       }}
     />
   );

@@ -1,7 +1,4 @@
-import complaints from "../data/complaintsData";
-
-export default function OfficerPerformance() {
-
+export default function OfficerPerformance({ complaints = [] }) {
   const total = complaints.length;
 
   const resolved = complaints.filter(
@@ -9,10 +6,10 @@ export default function OfficerPerformance() {
   ).length;
 
   const pending = complaints.filter(
-    (c) => c.status === "Pending"
+    (c) => c.status !== "Resolved"
   ).length;
 
-  const performance = Math.round((resolved / total) * 100);
+  const performance = total > 0 ? Math.round((resolved / total) * 100) : 100;
 
   return (
     <div
@@ -20,20 +17,19 @@ export default function OfficerPerformance() {
         background: "white",
         padding: "25px",
         borderRadius: "10px",
-        marginTop: "30px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
       }}
     >
-      <h2>🏆 Officer Performance</h2>
+      <h2 style={{ marginTop: 0, color: "#1e3a8a" }}>🏆 Officer Performance</h2>
 
-      <p>Total Complaints : {total}</p>
+      <div style={{ lineHeight: "2", fontSize: "16px", margin: "15px 0" }}>
+        <p><strong>Total Assigned:</strong> {total}</p>
+        <p><strong>Resolved:</strong> {resolved}</p>
+        <p><strong>Active/Pending:</strong> {pending}</p>
+        <p><strong>Resolution Performance:</strong> {performance}%</p>
+      </div>
 
-      <p>Resolved : {resolved}</p>
-
-      <p>Pending : {pending}</p>
-
-      <p>Performance : {performance}%</p>
-
-      <h3>
+      <h3 style={{ margin: "20px 0 0 0", color: performance >= 80 ? "#16a34a" : performance >= 60 ? "#d97706" : "#dc2626" }}>
         {performance >= 80
           ? "⭐⭐⭐⭐⭐ Excellent"
           : performance >= 60

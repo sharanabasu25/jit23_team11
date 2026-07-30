@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function OfficerLogin() {
   const navigate = useNavigate();
@@ -7,22 +8,37 @@ export default function OfficerLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
 
-    if (
-      email === "officer@karnataka.gov.in" &&
-      password === "admin123"
-    ) {
-      // Save officer login status
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password
+      });
+
+      // Enforce Role Restriction on login screen
+      if (response.data.role !== "Officer") {
+        throw new Error("Access Denied - This portal is restricted to Government Officers.");
+      }
+
+      // Save officer session credentials to local storage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data));
       localStorage.setItem("officerLoggedIn", "true");
 
-      setError("");
-
       navigate("/officer/dashboard");
-    } else {
-      setError("Invalid Officer Email or Password");
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message || err.message || "Invalid Officer Email or Password."
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -88,14 +104,15 @@ export default function OfficerLogin() {
                 color: "red",
                 fontWeight: "bold",
                 marginBottom: "15px",
+                fontSize: "14px"
               }}
             >
               {error}
             </p>
           )}
 
-          <button type="submit" style={buttonStyle}>
-            Login
+          <button type="submit" disabled={submitting} style={buttonStyle}>
+            {submitting ? "Verifying..." : "Login"}
           </button>
         </form>
 
@@ -108,14 +125,9 @@ export default function OfficerLogin() {
             fontSize: "14px",
           }}
         >
-          <strong>Demo Credentials</strong>
-
-          <p>
-            <strong>Email:</strong> officer@karnataka.gov.in
-          </p>
-
-          <p>
-            <strong>Password:</strong> admin123
+          <strong>Demo Officer Credentials</strong>
+          <p style={{ margin: "5px 0" }}>
+            Create an officer account in the database (or use your test script details) to authenticate.
           </p>
         </div>
       </div>

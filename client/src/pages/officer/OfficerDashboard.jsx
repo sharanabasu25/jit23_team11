@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import OfficerSidebar from "../../components/OfficerSidebar";
 import OfficerTopbar from "../../components/OfficerTopbar";
-import complaints from "../../data/complaintsData";
 import LiveClock from "../../components/LiveClock";
 import CategoryStats from "../../components/CategoryStats";
 import ProgressCard from "../../components/ProgressCard";
@@ -10,24 +11,63 @@ import ActivityTimeline from "../../components/ActivityTimeline";
 
 export default function OfficerDashboard() {
   const navigate = useNavigate();
+  const [complaints, setComplaints] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const totalComplaints = complaints.length;
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Unauthorized access. Please log in.");
+          setLoading(false);
+          return;
+        }
 
-  const pendingComplaints = complaints.filter(
-    (c) => c.status === "Pending"
-  ).length;
+        const response = await axios.get("http://localhost:5000/api/officers/dashboard", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
 
-  const resolvedComplaints = complaints.filter(
-    (c) => c.status === "Resolved"
-  ).length;
+        setComplaints(response.data.complaints);
+        setStats(response.data.stats);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load officer dashboard data.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const inProgressComplaints = complaints.filter(
-    (c) => c.status === "In Progress"
-  ).length;
+    fetchDashboard();
+  }, []);
 
-  const highPriorityComplaints = complaints.filter(
-    (c) => c.priority === "High"
-  );
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <h3>Loading Officer Dashboard...</h3>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
+        <h3>Access Denied / Error</h3>
+        <p>{error}</p>
+        <button onClick={() => navigate("/officer/login")} style={buttonStyle}>Go to Login</button>
+      </div>
+    );
+  }
+
+  const totalComplaints = stats.totalAssigned || 0;
+  const pendingComplaints = (stats.pending || 0) + (stats.seen || 0); // Include Pending & Seen under Pending card
+  const resolvedComplaints = stats.resolved || 0;
+  const inProgressComplaints = stats.inProgress || 0;
+  const highPriorityComplaints = complaints.filter((c) => c.priority === "High");
 
   const currentDate = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
@@ -52,7 +92,6 @@ export default function OfficerDashboard() {
         <div style={{ padding: "30px" }}>
 
           {/* Header */}
-
           <div
             style={{
               display: "flex",
@@ -70,8 +109,8 @@ export default function OfficerDashboard() {
                   fontWeight: "700",
                   color: "#111827",
                   whiteSpace: "nowrap",
-overflow: "hidden",
-textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 Government Officer Dashboard
@@ -120,7 +159,6 @@ textOverflow: "ellipsis",
           </div>
 
           {/* Dashboard Cards */}
-
           <div
             style={{
               display: "grid",
@@ -137,30 +175,23 @@ textOverflow: "ellipsis",
             <Card
               title="Pending"
               value={pendingComplaints}
-              onClick={() =>
-                navigate("/officer/complaints?status=pending")
-              }
+              onClick={() => navigate("/officer/complaints")}
             />
 
             <Card
               title="Resolved"
               value={resolvedComplaints}
-              onClick={() =>
-                navigate("/officer/complaints?status=resolved")
-              }
+              onClick={() => navigate("/officer/complaints")}
             />
 
             <Card
               title="In Progress"
               value={inProgressComplaints}
-              onClick={() =>
-                navigate("/officer/complaints?status=in-progress")
-              }
+              onClick={() => navigate("/officer/complaints")}
             />
           </div>
 
           {/* Live Clock + Performance */}
-
           <div
             style={{
               display: "grid",
@@ -171,15 +202,13 @@ textOverflow: "ellipsis",
           >
             <LiveClock />
 
-            <OfficerPerformance />
+            <OfficerPerformance complaints={complaints} />
           </div>
 
           {/* Category Statistics */}
-
-          <CategoryStats />
+          <CategoryStats complaints={complaints} />
 
           {/* Progress Bars */}
-
           <div
             style={{
               display: "grid",
@@ -209,8 +238,8 @@ textOverflow: "ellipsis",
               color="#3b82f6"
             />
           </div>
-                    {/* Today's Summary */}
 
+          {/* Today's Summary */}
           <div
             style={{
               marginTop: "35px",
@@ -232,7 +261,6 @@ textOverflow: "ellipsis",
           </div>
 
           {/* Recent Complaints */}
-
           <div
             style={{
               marginTop: "35px",
@@ -244,73 +272,93 @@ textOverflow: "ellipsis",
           >
             <h2>📝 Recent Complaints</h2>
 
-            <table
-              style={{
-                width: "100%",
-                marginTop: "15px",
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    background: "#1E3A8A",
-                    color: "white",
-                  }}
-                >
-                  <th style={th}>Complaint ID</th>
-                  <th style={th}>Citizen</th>
-                  <th style={th}>Category</th>
-                  <th style={th}>Priority</th>
-                  <th style={th}>Status</th>
-                  <th style={th}>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {complaints.slice(0, 5).map((complaint) => (
-                  <tr key={complaint.id}>
-                    <td style={td}>{complaint.id}</td>
-                    <td style={td}>{complaint.citizen}</td>
-                    <td style={td}>{complaint.category}</td>
-                    <td style={td}>{complaint.priority}</td>
-
-                    <td style={td}>
-                      <span
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: "20px",
-                          color: "white",
-                          background:
-                            complaint.status === "Pending"
-                              ? "#f59e0b"
-                              : complaint.status === "Resolved"
-                              ? "#22c55e"
-                              : "#3b82f6",
-                        }}
-                      >
-                        {complaint.status}
-                      </span>
-                    </td>
-
-                    <td style={td}>
-                      <button
-                        style={buttonStyle}
-                        onClick={() =>
-                          navigate(`/officer/complaint/${complaint.id}`)
-                        }
-                      >
-                        View
-                      </button>
-                    </td>
+            {complaints.length === 0 ? (
+              <p>No complaints assigned to you.</p>
+            ) : (
+              <table
+                style={{
+                  width: "100%",
+                  marginTop: "15px",
+                  borderCollapse: "collapse",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      background: "#1E3A8A",
+                      color: "white",
+                    }}
+                  >
+                    <th style={th}>Complaint ID</th>
+                    <th style={th}>Citizen</th>
+                    <th style={th}>Category</th>
+                    <th style={th}>Priority</th>
+                    <th style={th}>Status</th>
+                    <th style={th}>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {complaints.slice(0, 5).map((complaint) => (
+                    <tr key={complaint._id}>
+                      <td style={{ ...td, fontFamily: "monospace" }}>
+                        {complaint._id.substring(18).toUpperCase()}
+                      </td>
+                      <td style={td}>{complaint.citizen?.fullName || "Anonymous"}</td>
+                      <td style={td}>{complaint.complaintCategory}</td>
+                      <td style={td}>
+                        <span style={{
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          color: complaint.priority === "High" ? "#dc2626" : complaint.priority === "Medium" ? "#d97706" : "#4b5563",
+                          background: complaint.priority === "High" ? "#fee2e2" : complaint.priority === "Medium" ? "#fef3c7" : "#f3f4f6"
+                        }}>
+                          {complaint.priority}
+                        </span>
+                      </td>
+
+                      <td style={td}>
+                        <span
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "20px",
+                            color: "white",
+                            fontWeight: "bold",
+                            fontSize: "12px",
+                            background:
+                              complaint.status === "Pending"
+                                ? "#f59e0b"
+                                : complaint.status === "Seen"
+                                ? "#3b82f6"
+                                : complaint.status === "Resolved"
+                                ? "#22c55e"
+                                : "#8b5cf6",
+                          }}
+                        >
+                          {complaint.status}
+                        </span>
+                      </td>
+
+                      <td style={td}>
+                        <button
+                          style={buttonStyle}
+                          onClick={() =>
+                            navigate(`/officer/complaint/${complaint._id}`)
+                          }
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           {/* High Priority Complaints */}
-
           <div
             style={{
               marginTop: "35px",
@@ -327,28 +375,29 @@ textOverflow: "ellipsis",
             ) : (
               highPriorityComplaints.map((complaint) => (
                 <div
-                  key={complaint.id}
+                  key={complaint._id}
                   style={{
                     border: "1px solid #ddd",
                     borderRadius: "10px",
                     padding: "18px",
                     marginTop: "15px",
+                    background: "#fef2f2"
                   }}
                 >
-                  <h3 style={{ marginTop: 0 }}>
-                    {complaint.id}
+                  <h3 style={{ marginTop: 0, fontFamily: "monospace" }}>
+                    ID: {complaint._id.toUpperCase()}
                   </h3>
 
                   <p>
-                    <strong>Citizen:</strong> {complaint.citizen}
+                    <strong>Citizen:</strong> {complaint.citizen?.fullName || "Anonymous"}
                   </p>
 
                   <p>
-                    <strong>Category:</strong> {complaint.category}
+                    <strong>Category:</strong> {complaint.complaintCategory}
                   </p>
 
                   <p>
-                    <strong>Location:</strong> {complaint.location}
+                    <strong>Location/Address:</strong> {complaint.address}
                   </p>
 
                   <p>
@@ -358,7 +407,7 @@ textOverflow: "ellipsis",
                   <button
                     style={buttonStyle}
                     onClick={() =>
-                      navigate(`/officer/complaint/${complaint.id}`)
+                      navigate(`/officer/complaint/${complaint._id}`)
                     }
                   >
                     View Details
@@ -368,8 +417,8 @@ textOverflow: "ellipsis",
             )}
 
           </div>
-                    {/* Activity Timeline */}
 
+          {/* Activity Timeline */}
           <ActivityTimeline />
 
         </div>
@@ -379,7 +428,6 @@ textOverflow: "ellipsis",
 }
 
 /* Dashboard Card */
-
 function Card({ title, value, onClick }) {
   return (
     <div
@@ -428,7 +476,6 @@ function Card({ title, value, onClick }) {
 }
 
 /* Common Styles */
-
 const th = {
   padding: "15px",
   textAlign: "left",
@@ -449,4 +496,3 @@ const buttonStyle = {
   cursor: "pointer",
   fontWeight: "500",
 };
-
