@@ -15,7 +15,11 @@ export default function OfficerLogin() {
       email === "officer@karnataka.gov.in" &&
       password === "admin123"
     ) {
+      // Save officer login status
+      localStorage.setItem("officerLoggedIn", "true");
+
       setError("");
+
       navigate("/officer/dashboard");
     } else {
       setError("Invalid Officer Email or Password");
@@ -28,17 +32,17 @@ export default function OfficerLogin() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "80vh",
-        background: "#f5f7fb",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg,#dbeafe,#eff6ff)",
       }}
     >
       <div
         style={{
-          width: "420px",
+          width: "430px",
           background: "#fff",
-          padding: "30px",
+          padding: "35px",
           borderRadius: "12px",
-          boxShadow: "0 0 15px rgba(0,0,0,0.15)",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
         }}
       >
         <h2
@@ -52,7 +56,9 @@ export default function OfficerLogin() {
         </h2>
 
         <form onSubmit={handleLogin}>
-          <label>Official Email</label>
+          <label style={{ fontWeight: "bold" }}>
+            Official Email
+          </label>
 
           <input
             type="email"
@@ -63,7 +69,9 @@ export default function OfficerLogin() {
             required
           />
 
-          <label>Password</label>
+          <label style={{ fontWeight: "bold" }}>
+            Password
+          </label>
 
           <input
             type="password"
@@ -78,26 +86,23 @@ export default function OfficerLogin() {
             <p
               style={{
                 color: "red",
-                marginBottom: "15px",
                 fontWeight: "bold",
+                marginBottom: "15px",
               }}
             >
               {error}
             </p>
           )}
 
-          <button
-            type="submit"
-            style={buttonStyle}
-          >
+          <button type="submit" style={buttonStyle}>
             Login
           </button>
         </form>
 
         <div
           style={{
-            marginTop: "20px",
-            padding: "10px",
+            marginTop: "25px",
+            padding: "15px",
             background: "#eef4ff",
             borderRadius: "8px",
             fontSize: "14px",
@@ -105,9 +110,13 @@ export default function OfficerLogin() {
         >
           <strong>Demo Credentials</strong>
 
-          <p>Email: officer@karnataka.gov.in</p>
+          <p>
+            <strong>Email:</strong> officer@karnataka.gov.in
+          </p>
 
-          <p>Password: admin123</p>
+          <p>
+            <strong>Password:</strong> admin123
+          </p>
         </div>
       </div>
     </div>
@@ -122,15 +131,17 @@ const inputStyle = {
   borderRadius: "6px",
   border: "1px solid #ccc",
   fontSize: "15px",
+  boxSizing: "border-box",
 };
 
 const buttonStyle = {
   width: "100%",
   padding: "12px",
   background: "#2563eb",
-  color: "white",
+  color: "#fff",
   border: "none",
   borderRadius: "6px",
   cursor: "pointer",
   fontSize: "16px",
+  fontWeight: "bold",
 };

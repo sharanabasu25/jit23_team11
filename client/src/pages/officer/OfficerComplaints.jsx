@@ -8,8 +8,10 @@ export default function OfficerComplaints() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const statusFilter = searchParams.get("status") || "all";
+  const dashboardStatus = searchParams.get("status") || "all";
+
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState(dashboardStatus);
 
   const filteredComplaints = complaints.filter((complaint) => {
     const matchesSearch =
@@ -17,9 +19,12 @@ export default function OfficerComplaints() {
       complaint.citizen.toLowerCase().includes(search.toLowerCase()) ||
       complaint.category.toLowerCase().includes(search.toLowerCase());
 
+    const complaintStatus = complaint.status
+      .toLowerCase()
+      .replace(/\s/g, "-");
+
     const matchesStatus =
-      statusFilter === "all" ||
-      complaint.status.toLowerCase().replace(" ", "-") === statusFilter;
+      statusFilter === "all" || complaintStatus === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -40,20 +45,68 @@ export default function OfficerComplaints() {
         <div style={{ padding: "30px" }}>
           <h1>Complaints Management</h1>
 
-          <input
-            type="text"
-            placeholder="Search Complaint ID, Citizen or Category..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <p
             style={{
-              width: "350px",
-              padding: "10px",
-              marginTop: "20px",
+              color: "#666",
               marginBottom: "20px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
             }}
-          />
+          >
+            Total Complaints : <b>{filteredComplaints.length}</b>
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "15px",
+              marginBottom: "25px",
+              flexWrap: "wrap",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Search Complaint ID, Citizen or Category..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: "350px",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+              }}
+            />
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+              }}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+
+            <button
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
+              }}
+              style={{
+                background: "#ef4444",
+                color: "white",
+                border: "none",
+                padding: "10px 18px",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
 
           <table
             style={{

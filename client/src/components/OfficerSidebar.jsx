@@ -44,6 +44,10 @@ export default function OfficerSidebar() {
           📋 Complaints
         </Link>
 
+        <Link style={linkStyle} to="/officer/notifications">
+          🔔 Notifications
+        </Link>
+
         <Link style={linkStyle} to="/officer/profile">
           👤 Profile
         </Link>
@@ -51,6 +55,9 @@ export default function OfficerSidebar() {
         <Link style={linkStyle} to="/officer/login">
           🚪 Logout
         </Link>
+        <Link style={linkStyle} to="/officer/reports">
+  📈 Reports
+</Link>
       </div>
     </div>
   );
