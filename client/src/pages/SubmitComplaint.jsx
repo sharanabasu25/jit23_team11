@@ -14,12 +14,48 @@ function SubmitComplaint() {
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+  const [aiInfo, setAiInfo] = useState(null);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+    setAiInfo(null);
+    setAiAnalyzing(true);
+
+    try {
+      // Send image to AI Service directly for instant pre-selection preview
+      const aiFormData = new FormData();
+      aiFormData.append("image", file);
+
+      const aiRes = await axios.post("http://localhost:8001/detect", aiFormData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      const data = aiRes.data;
+      if (data && data.class_name && data.class_name !== "Unknown") {
+        const rawClass = data.class_name.trim().toLowerCase();
+        let mappedCat = null;
+        if (rawClass.includes("pothole")) mappedCat = "Pothole";
+        else if (rawClass.includes("electric")) mappedCat = "Electricity Problem";
+        else if (rawClass.includes("water")) mappedCat = "Water Leakage";
+
+        if (mappedCat) {
+          setComplaintCategory(mappedCat);
+          setAiInfo({
+            category: mappedCat,
+            confidence: Math.round((data.confidence || 0.85) * 100),
+            department: data.department || (mappedCat === "Pothole" ? "Road Department" : mappedCat === "Water Leakage" ? "Water Department" : "Electrical Department")
+          });
+        }
+      }
+    } catch (aiErr) {
+      console.warn("Real-time AI preview note:", aiErr.message);
+    } finally {
+      setAiAnalyzing(false);
     }
   };
 
@@ -102,6 +138,24 @@ function SubmitComplaint() {
               alt="Preview" 
               style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "8px" }} 
             />
+          </div>
+        )}
+
+        {aiAnalyzing && (
+          <div style={{ padding: "12px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "6px", color: "#1d4ed8", marginBottom: "15px", fontWeight: "500" }}>
+            🤖 AI Analyzing image in real-time...
+          </div>
+        )}
+
+        {aiInfo && (
+          <div style={{ padding: "12px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "6px", color: "#15803d", marginBottom: "15px" }}>
+            <span style={{ fontSize: "15px", fontWeight: "bold" }}>✨ AI Auto-Detected: {aiInfo.category}</span>
+            <span style={{ marginLeft: "8px", background: "#dcfce7", padding: "2px 8px", borderRadius: "12px", fontSize: "12px", fontWeight: "600" }}>
+              {aiInfo.confidence}% Confidence
+            </span>
+            <div style={{ marginTop: "4px", fontSize: "13px" }}>
+              🏢 Auto-Assigned Department: <b>{aiInfo.department}</b>
+            </div>
           </div>
         )}
 
