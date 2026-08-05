@@ -27,3 +27,10 @@ dataset_expansion/annotation_workspace/
 dataset_expansion/raw/
 dataset_expansion/reviewed/
 dataset_v2/
+
+# Temporary Upload Files
+backend/uploads/*
+!backend/uploads/.gitkeep
+ai-service/uploads/*
+!ai-service/uploads/.gitkeep
+
