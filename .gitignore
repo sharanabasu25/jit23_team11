@@ -15,22 +15,39 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Large Model Weights
+# Large Model Weights & Binary Files
 *.pt
+**/*.pt
 *.pth
+**/*.pth
 *.onnx
+**/*.onnx
 *.engine
+**/*.engine
+*.zip
+**/*.zip
+*.tar
+*.tar.gz
 
-# Machine Learning Outputs and Workspaces
-training/runs/
-dataset_expansion/annotation_workspace/
-dataset_expansion/raw/
-dataset_expansion/reviewed/
-dataset_v2/
+# All Dataset, Training & Output Directories (too large for GitHub)
+ai-service/dataset/
+ai-service/dataset_*/
+ai-service/eval/
+ai-service/runs/
+ai-service/**/runs/
+ai-service/training/
+ai-service/**/training/
+ai-service/real_world_test*/
+ai-service/external_pothole_split/
+ai-service/sample_test_images/
+dataset_prep/
+training/
+pothole/
+runs/
+server/
 
 # Temporary Upload Files
 backend/uploads/*
 !backend/uploads/.gitkeep
 ai-service/uploads/*
 !ai-service/uploads/.gitkeep
-
