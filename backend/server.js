@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 const connectDB = require('./config/db');
+const seedUsers = require('./seedData');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 // Initialize express app
@@ -48,6 +49,7 @@ const bootstrap = async () => {
   try {
     // Connect to MongoDB Atlas
     await connectDB();
+    await seedUsers();
 
     // Route mountings
     app.use('/api/auth', require('./routes/authRoutes'));

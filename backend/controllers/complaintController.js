@@ -9,11 +9,11 @@ const ALLOWED_CATEGORIES = ['Pothole', 'Electricity Problem', 'Water Leakage'];
  */
 const mapCategory = (categoryStr) => {
   if (!categoryStr) return null;
-  const normalized = categoryStr.trim().toLowerCase();
+  const normalized = categoryStr.trim().toLowerCase().replace(/[-_]/g, ' ');
   
-  if (normalized === 'pothole') return 'Pothole';
-  if (normalized === 'electricity problem' || normalized === 'electricity') return 'Electricity Problem';
-  if (normalized === 'water leakage' || normalized === 'water') return 'Water Leakage';
+  if (normalized.includes('pothole')) return 'Pothole';
+  if (normalized.includes('electric')) return 'Electricity Problem';
+  if (normalized.includes('water')) return 'Water Leakage';
   
   return null;
 };

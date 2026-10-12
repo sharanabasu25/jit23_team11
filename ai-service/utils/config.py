@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     YOLO_MODEL_PATH: str = os.path.normpath(
         os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "best.pt")
     )
+    # Gemini Vision API (fallback)
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_FALLBACK_ENABLED: bool = True
 
 
     # Use dotenv configuration to load variables from file

@@ -50,4 +50,8 @@ server/
 backend/uploads/*
 !backend/uploads/.gitkeep
 ai-service/uploads/*
-!ai-service/uploads/.gitkeep
+# Environment variables & secrets
+.env
+*.env
+!.env.example
+!*.env.example

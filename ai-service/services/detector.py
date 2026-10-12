@@ -1,10 +1,103 @@
 import os
 import logging
+import base64
 from PIL import Image, UnidentifiedImageError
 from ultralytics import YOLO
 from utils.config import settings
 
 logger = logging.getLogger("ai-service.detector")
+
+# ─── Gemini Vision Fallback ───────────────────────────────────────────────────
+_gemini_client = None
+
+def _get_gemini_client():
+    """Lazily initialize the new google-genai client."""
+    global _gemini_client
+    if _gemini_client is not None:
+        return _gemini_client
+    try:
+        from google import genai
+        api_key = settings.GEMINI_API_KEY
+        if not api_key:
+            logger.warning("Gemini API key not configured. Fallback disabled.")
+            return None
+        _gemini_client = genai.Client(api_key=api_key)
+        logger.info(f"Gemini client initialized with model: {settings.GEMINI_MODEL}")
+        return _gemini_client
+    except Exception as e:
+        logger.error(f"Gemini init failed: {e}")
+        return None
+
+def _gemini_detect(image_path: str) -> dict:
+    """
+    Use Gemini Vision to detect civic issues in an image.
+    Returns routing result dict matching same format as determine_routing().
+    """
+    client = _get_gemini_client()
+    if client is None:
+        return None
+
+    try:
+        # Read image as base64
+        with open(image_path, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("utf-8")
+
+        # Determine MIME type
+        ext = os.path.splitext(image_path)[1].lower()
+        mime_map = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
+        mime_type = mime_map.get(ext, "image/jpeg")
+
+        prompt = """You are an AI that detects civic infrastructure issues in images.
+Analyze this image carefully and identify if it shows any of these issues:
+- Pothole (road damage, broken road surface, pits in road)
+- Water Leakage (pipe burst, water logging, water gushing from pipes)
+- Electricity Problem (broken electric poles, dangling wires, damaged streetlights)
+- Garbage (waste dumping, uncollected garbage, trash piles)
+
+Respond ONLY with a valid JSON object in this exact format (no extra text):
+{
+  "detected": true or false,
+  "category": "Pothole" or "Water Leakage" or "Electricity Problem" or "Garbage" or "Unknown",
+  "confidence": 0.0 to 1.0,
+  "reason": "brief explanation"
+}
+
+If no civic issue is visible, set detected=false, category="Unknown", confidence=0.0"""
+
+        from google.genai import types
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=[
+                types.Part.from_bytes(data=base64.b64decode(image_data), mime_type=mime_type),
+                prompt
+            ]
+        )
+
+        # Parse JSON from response
+        import json, re
+        text = response.text.strip()
+        # Extract JSON block if wrapped in markdown
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+        if not json_match:
+            logger.warning(f"Gemini returned non-JSON response: {text[:100]}")
+            return None
+
+        result = json.loads(json_match.group())
+        category = result.get("category", "Unknown")
+        confidence = float(result.get("confidence", 0.0))
+        detected = result.get("detected", False)
+
+        logger.info(f"Gemini Detection - Category: {category}, Confidence: {confidence:.2f}, Reason: {result.get('reason','')}")
+
+        if not detected or category == "Unknown" or confidence < 0.15:
+            return determine_routing("Unknown", 0.0)
+
+        return determine_routing(category.lower(), confidence)
+
+    except Exception as e:
+        logger.error(f"Gemini detection failed: {e}", exc_info=True)
+        return None
+
 
 # Define default path from configuration settings
 DEFAULT_MODEL_PATH = settings.YOLO_MODEL_PATH
@@ -76,38 +169,38 @@ class YOLODetectorService:
 def determine_routing(best_class: str, best_conf: float) -> dict:
     """
     Applies the dual-tier routing logic and department mapping:
-    - confidence >= 0.75 -> AUTO_ROUTE
-    - 0.25 <= confidence < 0.75 -> HUMAN_REVIEW
-    - confidence < 0.25 -> SUPPRESS
+    - confidence >= 0.60 -> AUTO_ROUTE
+    - 0.15 <= confidence < 0.60 -> HUMAN_REVIEW
+    - confidence < 0.15 -> SUPPRESS
     
     Department Mapping:
-    - pothole -> Public Works Department
-    - electricity -> Electricity Department
-    - water_leakage -> Water Supply Board
+    - Pothole -> Road Department
+    - Electricity -> Electrical Department
+    - Water Leakage -> Water Department
     """
     routing_action = "SUPPRESS"
     department = "None"
     class_name = "Unknown"
     mapped_conf = 0.0
 
-    if best_class and best_class != "Unknown" and best_conf >= 0.25:
+    if best_class and best_class != "Unknown" and best_conf >= 0.15:
         cls_lower = best_class.lower()
         if "pothole" in cls_lower:
-            class_name = "pothole"
-            department = "Public Works Department"
-        elif "electricity" in cls_lower:
-            class_name = "electricity"
-            department = "Electricity Department"
-        elif "water_leakage" in cls_lower or "water leakage" in cls_lower:
-            class_name = "water_leakage"
-            department = "Water Supply Board"
+            class_name = "Pothole"
+            department = "Road Department"
+        elif "electricity" in cls_lower or "electric" in cls_lower:
+            class_name = "Electricity Problem"
+            department = "Electrical Department"
+        elif "water" in cls_lower:
+            class_name = "Water Leakage"
+            department = "Water Department"
         else:
             class_name = best_class
-            department = "Unknown Department"
+            department = "Road Department"
             
         mapped_conf = round(best_conf, 4)
 
-        if best_conf >= 0.75:
+        if best_conf >= 0.60:
             routing_action = "AUTO_ROUTE"
         else:
             routing_action = "HUMAN_REVIEW"
@@ -184,9 +277,22 @@ def detect_image(image_path: str) -> dict:
                     class_id = int(box.cls[0])
                     best_class = results[0].names[class_id]
         
-        # 5. Formulate return object
+        # 5. Formulate return object from YOLO
         routing_details = determine_routing(best_class, best_conf)
-        logger.info(f"Detection Results - Class: {routing_details['class_name']}, Conf: {routing_details['confidence']:.4f}, Action: {routing_details['routing_action']}")
+        logger.info(f"Detection Results (YOLO) - Class: {routing_details['class_name']}, Conf: {routing_details['confidence']:.4f}, Action: {routing_details['routing_action']}")
+
+        # 6. If YOLO result is SUPPRESS or low confidence → try Gemini fallback
+        if routing_details["routing_action"] == "SUPPRESS" and getattr(settings, "GEMINI_FALLBACK_ENABLED", True):
+            logger.info("YOLO suppressed result. Attempting Gemini Vision fallback...")
+            gemini_result = _gemini_detect(image_path)
+            if gemini_result and gemini_result["routing_action"] != "SUPPRESS":
+                logger.info(f"Gemini Fallback Result - Class: {gemini_result['class_name']}, Conf: {gemini_result['confidence']:.4f}, Action: {gemini_result['routing_action']}")
+                # Mark model_version to show Gemini was used
+                gemini_result["model_version"] = "V6-Gemini"
+                return gemini_result
+            else:
+                logger.info("Gemini fallback also found no issue. Returning SUPPRESS.")
+
         return routing_details
 
     except Exception as e:
