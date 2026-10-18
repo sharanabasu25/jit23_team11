@@ -21,6 +21,7 @@ import axios from "axios";
 import VidhanaSoudhaArtwork from "../components/VidhanaSoudhaArtwork";
 import TrackModal from "../components/TrackModal";
 import NotificationDrawer from "../components/NotificationDrawer";
+import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
 import "../citizenLogin.css";
 
 function Login() {
@@ -44,10 +45,9 @@ function Login() {
     }
   }, []);
 
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const displayName = user?.fullName?.split(" ")[0] || "Suresh";
-  const displayInitial = displayName.charAt(0).toUpperCase() || "S";
+  const user = getStoredUser();
+  const displayName = getCitizenDisplayName(user);
+  const displayInitial = getCitizenInitial(user);
 
   const handleLogin = async (e) => {
     e.preventDefault();

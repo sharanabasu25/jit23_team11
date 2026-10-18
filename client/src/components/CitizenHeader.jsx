@@ -10,8 +10,10 @@ import {
   LuFileText,
   LuSearch
 } from "react-icons/lu";
+import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
 
 export default function CitizenHeader({
+  user: propUser,
   onOpenSidebar,
   onOpenNotifications,
   onOpenTrack,
@@ -21,10 +23,9 @@ export default function CitizenHeader({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : null;
-  const displayName = user?.fullName?.split(" ")[0] || "Suresh";
-  const displayInitial = (user?.fullName?.charAt(0) || "S").toUpperCase();
+  const user = propUser || getStoredUser();
+  const displayName = getCitizenDisplayName(user);
+  const displayInitial = getCitizenInitial(user);
 
   // Close dropdown when clicked outside
   useEffect(() => {
@@ -123,8 +124,12 @@ export default function CitizenHeader({
           {dropdownOpen && (
             <div className="cd-profile-menu" role="menu">
               <div className="cd-menu-user-info">
-                <p className="cd-menu-user-name">{user?.fullName || "Suresh Kumar"}</p>
-                <p className="cd-menu-user-email">{user?.email || "citizen@karnataka.gov.in"}</p>
+                <p className="cd-menu-user-name">
+                  {user?.fullName
+                    ? user.fullName.replace(/\s*[\(\[][^()\[\]]*[\)\]]/g, "").trim()
+                    : "Citizen"}
+                </p>
+                <p className="cd-menu-user-email">{user?.email || "citizen@spgms.org"}</p>
                 <span className="cd-menu-user-role">Verified Citizen</span>
               </div>
               <hr className="cd-menu-divider" />

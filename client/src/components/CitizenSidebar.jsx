@@ -9,8 +9,10 @@ import {
   LuLogOut,
   LuX
 } from "react-icons/lu";
+import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
 
 export default function CitizenSidebar({
+  user: propUser,
   isOpen,
   onClose,
   onOpenTrack,
@@ -19,6 +21,10 @@ export default function CitizenSidebar({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const user = propUser || getStoredUser();
+  const displayName = getCitizenDisplayName(user);
+  const displayInitial = getCitizenInitial(user);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -117,12 +123,19 @@ export default function CitizenSidebar({
           </button>
         </div>
 
-        {/* Centered citizen avatar */}
+        {/* Centered citizen avatar & dynamic profile */}
         <div className="cd-avatar-block">
-          <div className="cd-avatar-circle">
+          <div
+            className="cd-avatar-circle"
+            title={displayName}
+            aria-label={`Citizen profile for ${displayName}`}
+          >
             <LuUser size={26} strokeWidth={1.8} />
           </div>
-          <span className="cd-avatar-role">Citizen</span>
+          <span className="cd-avatar-name">{displayName}</span>
+          <span className="cd-avatar-status">
+            <span className="cd-status-dot" /> Active Citizen
+          </span>
         </div>
 
         {/* Navigation list */}

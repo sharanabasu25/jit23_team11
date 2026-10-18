@@ -55,3 +55,8 @@ ai-service/uploads/*
 *.env
 !.env.example
 !*.env.example
+
+# Local archives and nested clones
+jit23_team11/
+java hamcaster/
+*.jar

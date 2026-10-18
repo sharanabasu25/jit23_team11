@@ -2,8 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Smart Public Grievance Management System - Database Layer",
-  "main": "config/db.js",
+  "main": "server.js",
   "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node seedData.js"
+  },
   "dependencies": {
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",

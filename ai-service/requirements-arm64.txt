@@ -1,0 +1,13 @@
+# Tested and verified requirements for Windows ARM64 (Python 3.11)
+# Uses prebuilt binary wheels without requiring MSVC C++ or Rust compilers
+
+fastapi>=0.111.0
+uvicorn>=0.30.1
+python-dotenv>=1.0.1
+pydantic>=2.7.4
+pydantic-settings>=2.3.4
+python-multipart>=0.0.9
+Pillow>=10.0.0
+google-genai>=0.3.0
+numpy>=1.26.0
+cryptography==46.0.3

@@ -25,6 +25,7 @@ import HampiBanner from "../components/HampiBanner";
 import TrackModal from "../components/TrackModal";
 import NotificationDrawer from "../components/NotificationDrawer";
 import HelpSupportModal from "../components/HelpSupportModal";
+import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
 import "../citizenDashboard.css";
 
 function Dashboard() {
@@ -33,6 +34,11 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Authenticated citizen state
+  const [user, setUser] = useState(() => getStoredUser());
+  const displayName = useMemo(() => getCitizenDisplayName(user), [user]);
+  const displayInitial = useMemo(() => getCitizenInitial(user), [user]);
 
   // Modal & Drawer visibility
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
@@ -59,6 +65,18 @@ function Dashboard() {
           }
         });
         setComplaints(response.data || []);
+
+        // Hydrate stored user with fresh profile data from DB if available
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          const citizenDb = response.data[0]?.citizen;
+          if (citizenDb && citizenDb.fullName) {
+            setUser((prev) => {
+              const updated = { ...(prev || {}), ...citizenDb };
+              localStorage.setItem("user", JSON.stringify(updated));
+              return updated;
+            });
+          }
+        }
       } catch (err) {
         console.error("Failed to fetch citizen grievances:", err);
         setError("Unable to retrieve grievances from municipal server.");
@@ -235,6 +253,7 @@ function Dashboard() {
     <div className="cd-page-viewport">
       {/* 2. Top Navigation Bar (Midnight Indigo #19264B) */}
       <CitizenHeader
+        user={user}
         onOpenSidebar={() => setIsMobileSidebarOpen(true)}
         onOpenNotifications={() => setIsNotifOpen(true)}
         onOpenTrack={() => setIsTrackModalOpen(true)}
@@ -245,6 +264,7 @@ function Dashboard() {
       <div className="cd-dashboard-layout">
         {/* 3. Left Sidebar (Vanilla Cream #F8F3E8, ~200px) */}
         <CitizenSidebar
+          user={user}
           isOpen={isMobileSidebarOpen}
           onClose={() => setIsMobileSidebarOpen(false)}
           onOpenTrack={() => setIsTrackModalOpen(true)}
@@ -257,8 +277,7 @@ function Dashboard() {
           {/* Welcome Header & Search Row */}
           <section className="cd-welcome-row" aria-label="Welcome section">
             <div className="cd-welcome-text-block">
-              <p className="cd-eyebrow-text">GOVERNMENT OF KARNATAKA</p>
-              <h1 className="cd-welcome-heading">Welcome back, Citizen!</h1>
+              <h1 className="cd-welcome-heading">Welcome back, {displayName}! 👋</h1>
               <p className="cd-welcome-subtext">
                 Here's your civic overview. Report issues, track progress, and help build a better Karnataka.
               </p>

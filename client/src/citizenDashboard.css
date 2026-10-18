@@ -377,6 +377,38 @@
   font-weight: 600;
 }
 
+.cd-avatar-name {
+  color: var(--cd-midnight-indigo);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 4px;
+  text-align: center;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cd-avatar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cd-secondary-text);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cd-status-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background-color: #10B981;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 /* Navigation List */
 .cd-nav-wrapper {
   flex: 1;
