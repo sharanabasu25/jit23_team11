@@ -1,5 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  FiSearch, 
+  FiPlusCircle, 
+  FiFilter, 
+  FiArrowRight, 
+  FiCopy, 
+  FiCheck, 
+  FiCalendar, 
+  FiMapPin, 
+  FiAlertCircle 
+} from "react-icons/fi";
 import axios from "axios";
 
 function MyComplaints() {
@@ -7,27 +18,30 @@ function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          setError("Please log in to view your complaints.");
+          setError("Please sign in to view your filed grievances.");
           setLoading(false);
           return;
         }
 
         const response = await axios.get("http://localhost:5000/api/complaints/history", {
           headers: {
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         });
 
-        setComplaints(response.data);
+        setComplaints(response.data || []);
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch complaints list.");
+        setError("Unable to retrieve grievance history. Please check your network connection.");
       } finally {
         setLoading(false);
       }
@@ -36,135 +50,335 @@ function MyComplaints() {
     fetchHistory();
   }, []);
 
-  if (loading) {
-    return <div style={{ textAlign: "center", padding: "50px" }}><h3>Loading your complaints...</h3></div>;
-  }
+  const handleCopyId = (id) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
-  if (error) {
+  // Filter complaints based on status tab and search text
+  const filteredComplaints = complaints.filter((c) => {
+    // Status filter
+    if (filterStatus === "Pending" && c.status !== "Pending" && c.status !== "Seen") return false;
+    if (filterStatus === "In Progress" && c.status !== "In Progress") return false;
+    if (filterStatus === "Resolved" && c.status !== "Resolved") return false;
+
+    // Search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchId = c._id.toLowerCase().includes(q);
+      const matchCat = (c.complaintCategory || "").toLowerCase().includes(q);
+      const matchDept = (c.department || "").toLowerCase().includes(q);
+      const matchAddr = (c.address || "").toLowerCase().includes(q);
+      const matchDesc = (c.manualDescription || "").toLowerCase().includes(q);
+      return matchId || matchCat || matchDept || matchAddr || matchDesc;
+    }
+
+    return true;
+  });
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Pending":
+        return <span className="spgms-badge badge-pending">Pending Review</span>;
+      case "Seen":
+        return <span className="spgms-badge badge-seen">Seen & Assigned</span>;
+      case "In Progress":
+        return <span className="spgms-badge badge-progress">In Progress</span>;
+      case "Resolved":
+        return <span className="spgms-badge badge-resolved">Resolved</span>;
+      case "Rejected":
+        return <span className="spgms-badge badge-rejected">Rejected</span>;
+      default:
+        return <span className="spgms-badge badge-pending">{status}</span>;
+    }
+  };
+
+  const getPriorityBadge = (priority) => {
+    switch (priority) {
+      case "High":
+        return <span className="spgms-badge badge-priority-high">High Priority</span>;
+      case "Medium":
+        return <span className="spgms-badge badge-priority-medium">Medium</span>;
+      default:
+        return <span className="spgms-badge badge-priority-low">{priority || "Low"}</span>;
+    }
+  };
+
+  if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
-        <h3>Error</h3>
-        <p>{error}</p>
-        <button onClick={() => navigate("/login")} style={btnStyle}>Go to Login</button>
+      <div className="citizen-page" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="spgms-card" style={{ padding: "40px", textAlign: "center" }}>
+          <div style={{ fontSize: "36px", marginBottom: "15px" }}>⏳</div>
+          <h3 style={{ margin: 0, color: "var(--midnight-indigo)" }}>Loading your grievances...</h3>
+          <p style={{ color: "var(--muted-grey)", fontSize: "14px", marginTop: "6px" }}>
+            Querying secure municipal database
+          </p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div
-      style={{
-        padding: "40px",
-        maxWidth: "1000px",
-        margin: "auto",
-        minHeight: "80vh"
-      }}
-    >
-      <h1 style={{ color: "#2563eb", marginBottom: "25px" }}>
-        My Complaints
-      </h1>
-
-      {complaints.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px", background: "white", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-          <p style={{ fontSize: "16px", color: "#6b7280" }}>You haven't filed any complaints yet.</p>
-          <button 
-            onClick={() => navigate("/submit-complaint")} 
-            style={{ ...btnStyle, marginTop: "15px" }}
-          >
-            ➕ Submit First Complaint
+  if (error) {
+    return (
+      <div className="citizen-page" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="spgms-card" style={{ maxWidth: "440px", textAlign: "center", padding: "40px" }}>
+          <FiAlertCircle size={44} style={{ color: "var(--error-red)", marginBottom: "14px" }} />
+          <h2 style={{ fontSize: "22px", color: "var(--midnight-indigo)", margin: "0 0 10px" }}>
+            Session Required
+          </h2>
+          <p style={{ color: "var(--muted-grey)", fontSize: "14px", marginBottom: "25px" }}>
+            {error}
+          </p>
+          <button onClick={() => navigate("/login")} className="spgms-btn spgms-btn-primary" style={{ width: "100%" }}>
+            Go to Citizen Login
           </button>
         </div>
-      ) : (
-        <table
+      </div>
+    );
+  }
+
+  const counts = {
+    all: complaints.length,
+    pending: complaints.filter((c) => c.status === "Pending" || c.status === "Seen").length,
+    inProgress: complaints.filter((c) => c.status === "In Progress").length,
+    resolved: complaints.filter((c) => c.status === "Resolved").length
+  };
+
+  return (
+    <div className="citizen-page">
+      <div className="citizen-container">
+        {/* Header Bar */}
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            background: "white",
-            borderRadius: "8px",
-            overflow: "hidden"
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px",
+            marginBottom: "28px"
           }}
         >
-          <thead>
-            <tr style={{ backgroundColor: "#2563eb", color: "white" }}>
-              <th style={{ padding: "15px" }}>Complaint ID</th>
-              <th>Issue</th>
-              <th>Department</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+          <div>
+            <span className="spgms-badge badge-seen" style={{ marginBottom: "6px" }}>
+              OFFICIAL GRIEVANCE DOSSIER
+            </span>
+            <h1 style={{ fontSize: "32px", fontWeight: "800", color: "var(--midnight-indigo)", margin: "4px 0" }}>
+              My Grievance History
+            </h1>
+            <p style={{ color: "var(--muted-grey)", fontSize: "14px", margin: 0 }}>
+              Track all civic complaints lodged under your citizen account
+            </p>
+          </div>
 
-          <tbody>
-            {complaints.map((complaint) => (
-              <tr key={complaint._id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                <td style={{ padding: "15px", fontFamily: "monospace" }}>
-                  {complaint._id.substring(18).toUpperCase()}
-                </td>
-                <td>{complaint.complaintCategory}</td>
-                <td>{complaint.department}</td>
-                <td>
-                  <span style={{
-                    padding: "3px 8px",
-                    borderRadius: "4px",
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    color: complaint.priority === "High" ? "#dc2626" : complaint.priority === "Medium" ? "#d97706" : "#4b5563",
-                    background: complaint.priority === "High" ? "#fee2e2" : complaint.priority === "Medium" ? "#fef3c7" : "#f3f4f6"
-                  }}>
-                    {complaint.priority}
-                  </span>
-                </td>
-                <td>
-                  <span style={{
-                    padding: "5px 10px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    color: "white",
-                    backgroundColor: 
-                      complaint.status === "Pending" ? "#f59e0b" : 
-                      complaint.status === "Seen" ? "#3b82f6" : 
-                      complaint.status === "In Progress" ? "#8b5cf6" : "#10b981"
-                  }}>
-                    {complaint.status}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    onClick={() => navigate(`/complaint/${complaint._id}`)}
-                    style={{
-                      background: "#2563eb",
-                      color: "white",
-                      border: "none",
-                      padding: "8px 15px",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          <button
+            onClick={() => navigate("/submit-complaint")}
+            className="spgms-btn spgms-btn-primary"
+          >
+            <FiPlusCircle size={16} /> Lodge New Grievance
+          </button>
+        </div>
+
+        {/* Filter and Search Controls */}
+        <div
+          className="spgms-card"
+          style={{
+            padding: "18px 24px",
+            marginBottom: "24px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px"
+          }}
+        >
+          {/* Status Tabs */}
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => setFilterStatus("All")}
+              className={`spgms-btn spgms-btn-sm ${filterStatus === "All" ? "spgms-btn-primary" : "spgms-btn-secondary"}`}
+            >
+              All ({counts.all})
+            </button>
+            <button
+              onClick={() => setFilterStatus("Pending")}
+              className={`spgms-btn spgms-btn-sm ${filterStatus === "Pending" ? "spgms-btn-primary" : "spgms-btn-secondary"}`}
+            >
+              Pending ({counts.pending})
+            </button>
+            <button
+              onClick={() => setFilterStatus("In Progress")}
+              className={`spgms-btn spgms-btn-sm ${filterStatus === "In Progress" ? "spgms-btn-primary" : "spgms-btn-secondary"}`}
+            >
+              In Progress ({counts.inProgress})
+            </button>
+            <button
+              onClick={() => setFilterStatus("Resolved")}
+              className={`spgms-btn spgms-btn-sm ${filterStatus === "Resolved" ? "spgms-btn-primary" : "spgms-btn-secondary"}`}
+            >
+              Resolved ({counts.resolved})
+            </button>
+          </div>
+
+          {/* Search Box */}
+          <div style={{ position: "relative", minWidth: "260px" }}>
+            <input
+              type="text"
+              className="spgms-input"
+              style={{ paddingLeft: "36px", paddingRight: "14px", fontSize: "14px" }}
+              placeholder="Search by ID, category, area..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <FiSearch
+              size={15}
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--muted-grey)"
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Complaints Table / List */}
+        {filteredComplaints.length === 0 ? (
+          <div className="spgms-card" style={{ textAlign: "center", padding: "50px 20px" }}>
+            <div
+              style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                backgroundColor: "var(--muted-lavender)",
+                color: "var(--midnight-indigo)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+                fontSize: "26px"
+              }}
+            >
+              🔍
+            </div>
+            <h3 style={{ fontSize: "20px", color: "var(--midnight-indigo)", margin: "0 0 8px" }}>
+              No Complaints Match Your Criteria
+            </h3>
+            <p style={{ color: "var(--muted-grey)", fontSize: "14px", maxWidth: "420px", margin: "0 auto 20px" }}>
+              {complaints.length === 0
+                ? "You haven't filed any civic grievances yet. Help improve our community by reporting issues."
+                : "No grievances found matching the current filter and search parameters."}
+            </p>
+            {complaints.length === 0 ? (
+              <button
+                onClick={() => navigate("/submit-complaint")}
+                className="spgms-btn spgms-btn-primary"
+              >
+                <FiPlusCircle size={16} /> Lodge First Grievance
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setFilterStatus("All");
+                  setSearchQuery("");
+                }}
+                className="spgms-btn spgms-btn-secondary"
+              >
+                Reset Filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="spgms-table-container">
+            <table className="spgms-table">
+              <thead>
+                <tr>
+                  <th>Ref ID</th>
+                  <th>Category</th>
+                  <th>Department</th>
+                  <th>Priority</th>
+                  <th>Filed Date</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: "right" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredComplaints.map((c) => {
+                  const shortId = c._id.substring(18).toUpperCase();
+                  return (
+                    <tr key={c._id}>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ fontFamily: "monospace", fontWeight: "700", color: "var(--midnight-indigo)" }}>
+                            #{shortId}
+                          </span>
+                          <button
+                            onClick={() => handleCopyId(c._id)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: "2px",
+                              color: copiedId === c._id ? "var(--success-green)" : "var(--muted-grey)",
+                              display: "flex",
+                              alignItems: "center"
+                            }}
+                            title="Copy full reference ID"
+                          >
+                            {copiedId === c._id ? <FiCheck size={13} /> : <FiCopy size={13} />}
+                          </button>
+                        </div>
+                      </td>
+
+                      <td>
+                        <strong style={{ color: "var(--dark-charcoal)" }}>{c.complaintCategory}</strong>
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--muted-grey)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            marginTop: "3px"
+                          }}
+                        >
+                          <FiMapPin size={12} />
+                          <span>{c.address ? (c.address.length > 30 ? `${c.address.substring(0, 30)}...` : c.address) : "Geotagged"}</span>
+                        </div>
+                      </td>
+
+                      <td>{c.department}</td>
+                      <td>{getPriorityBadge(c.priority)}</td>
+
+                      <td style={{ fontSize: "13px", color: "var(--muted-grey)", whiteSpace: "nowrap" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                          <FiCalendar size={13} />
+                          <span>{new Date(c.createdAt).toLocaleDateString("en-IN")}</span>
+                        </div>
+                      </td>
+
+                      <td>{getStatusBadge(c.status)}</td>
+
+                      <td style={{ textAlign: "right" }}>
+                        <button
+                          onClick={() => navigate(`/complaint/${c._id}`)}
+                          className="spgms-btn spgms-btn-primary spgms-btn-sm"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Track & View <FiArrowRight size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-const btnStyle = {
-  background: "#2563eb",
-  color: "white",
-  border: "none",
-  padding: "10px 20px",
-  borderRadius: "5px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: "14px"
-};
 
 export default MyComplaints;

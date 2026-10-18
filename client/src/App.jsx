@@ -34,12 +34,15 @@ import OfficerProfile from "./pages/officer/OfficerProfile";
 function Layout() {
   const location = useLocation();
 
-  // Hide Citizen Navbar & Footer on Officer pages
+  // Hide Citizen Navbar & Footer on Officer pages, Citizen Dashboard, and Login page
   const isOfficerRoute = location.pathname.startsWith("/officer");
+  const isCitizenDashboard = location.pathname === "/dashboard";
+  const isLoginPage = location.pathname === "/login";
+  const hideNavFooter = isOfficerRoute || isCitizenDashboard || isLoginPage;
 
   return (
     <>
-      {!isOfficerRoute && <Navbar />}
+      {!hideNavFooter && <Navbar />}
 
       <Routes>
         {/* Landing Page */}
@@ -107,7 +110,7 @@ function Layout() {
 />
       </Routes>
 
-      {!isOfficerRoute && <Footer />}
+      {!hideNavFooter && <Footer />}
     </>
   );
 }

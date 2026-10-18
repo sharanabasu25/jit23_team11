@@ -1,0 +1,663 @@
+/* ==========================================================================
+   SPGMS — Citizen Login Page Scoped Styles
+   Exact reproduction of design reference screenshot:
+   Vanilla Cream + Midnight Indigo + Vidhana Soudha Architectural Silhouette
+   ========================================================================== */
+
+:root {
+  --cl-midnight-indigo: #191970;
+  --cl-deep-indigo: #10143A;
+  --cl-vanilla-cream: #F8F3E8;
+  --cl-soft-ivory: #FFFCF5;
+  --cl-champagne-gold: #F3DFA5;
+  --cl-soft-gold: #D8B878;
+  --cl-muted-lavender: #E8E7F5;
+  --cl-dark-text: #25263A;
+  --cl-secondary-text: #777789;
+  --cl-border: #E5DDCE;
+}
+
+/* Full page wrapper */
+.cl-page {
+  min-height: 100vh;
+  background-color: var(--cl-vanilla-cream);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Top Navbar */
+.cl-navbar {
+  background-color: var(--cl-midnight-indigo);
+  border-bottom: 2px solid var(--cl-soft-gold);
+  padding: 0 32px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 20;
+  box-sizing: border-box;
+  box-shadow: 0 4px 15px rgba(16, 20, 58, 0.2);
+}
+
+.cl-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cl-nav-logo-box {
+  width: 38px;
+  height: 38px;
+  background-color: var(--cl-deep-indigo);
+  border: 1.5px solid var(--cl-soft-gold);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cl-champagne-gold);
+  flex-shrink: 0;
+}
+
+.cl-nav-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.cl-nav-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cl-nav-brand-title {
+  color: #FFFFFF;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cl-nav-citizen-badge {
+  background-color: var(--cl-champagne-gold);
+  color: var(--cl-midnight-indigo);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.cl-nav-subtitle {
+  color: #C8C7DB;
+  font-size: 11px;
+  margin: 1px 0 0;
+  line-height: 1.2;
+}
+
+/* Nav links */
+.cl-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.cl-nav-link {
+  color: #D5D4E6;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  position: relative;
+  transition: color 0.15s ease;
+  cursor: pointer;
+}
+
+.cl-nav-link:hover {
+  color: #FFFFFF;
+}
+
+.cl-nav-link.active {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.cl-nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--cl-soft-gold);
+  border-radius: 2px;
+}
+
+.cl-nav-divider {
+  width: 1px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.22);
+  margin: 0 4px;
+}
+
+.cl-nav-icon-btn {
+  background: transparent;
+  border: none;
+  color: #D5D4E6;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  padding: 4px;
+  transition: color 0.15s ease;
+}
+
+.cl-nav-icon-btn:hover {
+  color: #FFFFFF;
+}
+
+.cl-nav-notif-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background-color: #E53E3E;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cl-nav-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.cl-nav-avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--cl-champagne-gold);
+  color: var(--cl-midnight-indigo);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cl-nav-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cl-nav-logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Main Hero Stage */
+.cl-hero-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px 48px;
+  position: relative;
+  box-sizing: border-box;
+  min-height: calc(100vh - 66px);
+}
+
+/* Background Artwork */
+.cl-bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cl-bg-palace-left {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 440px;
+  max-width: 32vw;
+  height: auto;
+  opacity: 0.9;
+}
+
+.cl-bg-palace-right {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 440px;
+  max-width: 32vw;
+  height: auto;
+  opacity: 0.9;
+}
+
+.cl-motto-left {
+  position: absolute;
+  left: 60px;
+  top: 130px;
+  color: #C2A979;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  line-height: 1.65;
+  text-transform: uppercase;
+  z-index: 3;
+}
+
+.cl-motto-line {
+  width: 38px;
+  height: 2.5px;
+  background-color: var(--cl-soft-gold);
+  margin-top: 10px;
+  border-radius: 2px;
+}
+
+.cl-motto-right {
+  position: absolute;
+  right: 60px;
+  top: 130px;
+  color: #C2A979;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  line-height: 1.65;
+  text-transform: uppercase;
+  text-align: right;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Center Container */
+.cl-center-container {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 470px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cl-civic-emblem {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: var(--cl-midnight-indigo);
+  border: 2.5px solid var(--cl-soft-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cl-champagne-gold);
+  box-shadow: 0 4px 14px rgba(25, 25, 112, 0.25);
+  margin-bottom: 12px;
+}
+
+.cl-gov-pill {
+  background-color: var(--cl-muted-lavender);
+  color: var(--cl-midnight-indigo);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.cl-hero-title {
+  color: var(--cl-midnight-indigo);
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.cl-hero-subtitle {
+  color: var(--cl-secondary-text);
+  font-size: 14.5px;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+/* Login Card */
+.cl-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid var(--cl-border);
+  border-top: 3.5px solid var(--cl-midnight-indigo);
+  box-shadow: 0 10px 30px rgba(25, 25, 112, 0.07), 0 4px 12px rgba(0, 0, 0, 0.03);
+  padding: 32px 34px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cl-form-group {
+  margin-bottom: 16px;
+}
+
+.cl-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cl-dark-text);
+  margin-bottom: 8px;
+}
+
+.cl-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cl-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #8C8C9E;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.cl-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 42px;
+  border-radius: 8px;
+  border: 1px solid var(--cl-border);
+  background-color: #FAFAFA;
+  font-size: 14px;
+  color: var(--cl-dark-text);
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.cl-input:focus {
+  border-color: var(--cl-midnight-indigo);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.1);
+}
+
+.cl-input::placeholder {
+  color: #9CA3AF;
+}
+
+.cl-password-toggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #8C8C9E;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cl-password-toggle:hover {
+  color: var(--cl-dark-text);
+}
+
+.cl-remember-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 20px;
+}
+
+.cl-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--cl-dark-text);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cl-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cl-midnight-indigo);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.cl-forgot-link {
+  color: var(--cl-midnight-indigo);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.cl-forgot-link:hover {
+  text-decoration: underline;
+}
+
+.cl-submit-btn {
+  width: 100%;
+  height: 48px;
+  background-color: var(--cl-midnight-indigo);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.cl-submit-btn:hover:not(:disabled) {
+  background-color: var(--cl-deep-indigo);
+}
+
+.cl-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cl-divider-row {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--cl-secondary-text);
+  font-size: 13px;
+}
+
+.cl-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--cl-border);
+}
+
+.cl-divider-text {
+  padding: 0 12px;
+}
+
+.cl-register-btn {
+  width: 100%;
+  height: 46px;
+  background-color: #FCF8ED;
+  border: 1.5px solid var(--cl-soft-gold);
+  color: #8A6520;
+  font-size: 14.5px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.cl-register-btn:hover {
+  background-color: #F8F0DC;
+  border-color: #C5A056;
+  color: #6D4F14;
+}
+
+/* Officer Section below card */
+.cl-officer-section {
+  margin-top: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cl-secure-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cl-secondary-text);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.cl-officer-query {
+  color: var(--cl-secondary-text);
+  font-size: 13.5px;
+  margin: 0;
+}
+
+.cl-officer-link {
+  color: var(--cl-midnight-indigo);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cl-officer-link:hover {
+  color: var(--cl-deep-indigo);
+}
+
+/* Alerts */
+.cl-alert {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cl-alert-error {
+  background-color: #FDF2F2;
+  color: #B42335;
+  border: 1px solid rgba(180, 35, 53, 0.2);
+}
+
+.cl-alert-info {
+  background-color: #F0F4FF;
+  color: #191970;
+  border: 1px solid rgba(25, 25, 112, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .cl-motto-left, .cl-motto-right {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .cl-nav-links {
+    display: none;
+  }
+  .cl-bg-palace-left, .cl-bg-palace-right {
+    width: 320px;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 600px) {
+  .cl-navbar {
+    padding: 0 16px;
+  }
+  .cl-card {
+    padding: 24px 20px;
+  }
+  .cl-hero-title {
+    font-size: 26px;
+  }
+  .cl-hero-stage {
+    padding: 24px 14px 36px;
+  }
+  .cl-bg-palace-left, .cl-bg-palace-right {
+    opacity: 0.35;
+    width: 240px;
+  }
+}

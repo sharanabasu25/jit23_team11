@@ -1,5 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  FiUploadCloud, 
+  FiMapPin, 
+  FiCheckCircle, 
+  FiAlertCircle, 
+  FiCpu, 
+  FiFileText, 
+  FiNavigation, 
+  FiImage, 
+  FiTrash2, 
+  FiArrowRight, 
+  FiShield 
+} from "react-icons/fi";
 import axios from "axios";
 
 function SubmitComplaint() {
@@ -101,7 +114,7 @@ function SubmitComplaint() {
         setPriority(calculatedPriority);
 
         if (descriptionType === "auto") {
-          setManualDescription(`[AI Auto-Generated] Detected ${mappedCat} with ${calculatedConf}% confidence requiring inspection.`);
+          setManualDescription(`[AI Auto-Generated] Detected ${mappedCat} with ${calculatedConf}% confidence requiring municipal inspection.`);
         }
 
         setAiInfo({
@@ -129,11 +142,25 @@ function SubmitComplaint() {
     setDescriptionType(type);
     if (type === "auto") {
       if (aiInfo) {
-        setManualDescription(`[AI Auto-Generated] Detected ${aiInfo.category} with ${aiInfo.confidence}% confidence requiring inspection.`);
+        setManualDescription(`[AI Auto-Generated] Detected ${aiInfo.category} with ${aiInfo.confidence}% confidence requiring municipal inspection.`);
       } else {
         setManualDescription("Civic grievance reported for municipal inspection.");
       }
     }
+  };
+
+  const handleCategoryChange = (e) => {
+    const cat = e.target.value;
+    setComplaintCategory(cat);
+    if (cat === "Pothole") setDepartment("Road Department");
+    else if (cat === "Electricity Problem") setDepartment("Electrical Department");
+    else if (cat === "Water Leakage") setDepartment("Water Department");
+  };
+
+  const handleClearImage = () => {
+    setImage(null);
+    setImagePreview(null);
+    setAiInfo(null);
   };
 
   const handleSubmit = async (e) => {
@@ -142,7 +169,7 @@ function SubmitComplaint() {
     setSubmitting(true);
 
     if (!image) {
-      setError("Please upload an image of the grievance.");
+      setError("Please upload a clear photograph of the civic defect.");
       setSubmitting(false);
       return;
     }
@@ -150,7 +177,7 @@ function SubmitComplaint() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error("You must be logged in to submit a complaint.");
+        throw new Error("You must be logged in as a citizen to submit a complaint.");
       }
 
       // Construct multipart form data
@@ -160,12 +187,12 @@ function SubmitComplaint() {
       formData.append("manualDescription", manualDescription || "Reported grievance");
       formData.append("latitude", latitude || "12.9716");
       formData.append("longitude", longitude || "77.5946");
-      formData.append("address", address || "Bengaluru");
+      formData.append("address", address || "Bengaluru, Karnataka");
       formData.append("priority", priority);
 
       await axios.post("http://localhost:5000/api/complaints", formData, {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data"
         }
       });
@@ -174,7 +201,7 @@ function SubmitComplaint() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || err.message || "Failed to submit complaint. Please check your inputs."
+        err.response?.data?.message || err.message || "Failed to submit grievance. Please verify all inputs."
       );
     } finally {
       setSubmitting(false);
@@ -182,245 +209,485 @@ function SubmitComplaint() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "700px",
-        margin: "40px auto",
-        padding: "30px",
-        background: "#ffffff",
-        borderRadius: "10px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-      }}
-    >
-      <h1 style={{ textAlign: "center", color: "#2563eb", marginBottom: "30px" }}>
-        Submit New Complaint
-      </h1>
+    <div className="citizen-page">
+      <div className="citizen-container-narrow">
+        {/* Form Header */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <span className="spgms-badge badge-seen" style={{ marginBottom: "8px" }}>
+            OFFICIAL CIVIC GRIEVANCE LODGEMENT
+          </span>
+          <h1 style={{ fontSize: "32px", fontWeight: "800", color: "var(--midnight-indigo)", margin: "4px 0" }}>
+            Lodge a New Grievance
+          </h1>
+          <p style={{ color: "var(--muted-grey)", fontSize: "15px", margin: 0 }}>
+            Provide photo evidence and incident coordinates for instant AI triaging and officer assignment
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        {error && <p style={{ color: "red", fontWeight: "bold", marginBottom: "15px" }}>{error}</p>}
-
-        <label><b>Upload Complaint Image</b></label>
-        <br />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ marginTop: "10px", marginBottom: "20px" }}
-          required
-        />
-
-        {imagePreview && (
-          <div style={{ marginBottom: "20px", textAlign: "center" }}>
-            <img 
-              src={imagePreview} 
-              alt="Preview" 
-              style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "8px", objectFit: "contain" }} 
-            />
+        {error && (
+          <div className="spgms-alert spgms-alert-error" role="alert">
+            <FiAlertCircle size={18} style={{ flexShrink: 0, marginTop: "2px" }} />
+            <div>{error}</div>
           </div>
         )}
 
-        {aiAnalyzing && (
-          <div style={{ padding: "12px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "6px", color: "#1d4ed8", marginBottom: "15px", fontWeight: "500" }}>
-            🤖 AI Analyzing image in real-time...
-          </div>
-        )}
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* SECTION 1: Photographic Evidence & AI Analysis */}
+          <div className="spgms-card" style={{ borderTop: "4px solid var(--midnight-indigo)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  backgroundColor: "var(--muted-lavender)",
+                  color: "var(--midnight-indigo)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "700",
+                  fontSize: "14px"
+                }}
+              >
+                1
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "18px" }}>Photographic Evidence</h3>
+                <span style={{ fontSize: "12px", color: "var(--muted-grey)" }}>
+                  Upload clear camera photo of the pothole, water leak, or defect
+                </span>
+              </div>
+            </div>
 
-        {aiInfo && (
-          <div style={{ padding: "12px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "6px", color: "#15803d", marginBottom: "15px" }}>
-            <span style={{ fontSize: "15px", fontWeight: "bold" }}>✨ AI Auto-Detected: {aiInfo.category}</span>
-            <span style={{ marginLeft: "8px", background: "#dcfce7", padding: "2px 8px", borderRadius: "12px", fontSize: "12px", fontWeight: "600" }}>
-              {aiInfo.confidence}% Confidence
-            </span>
-            <div style={{ marginTop: "4px", fontSize: "13px" }}>
-              🏢 Auto-Assigned Department: <b>{aiInfo.department}</b> | Priority: <b>{aiInfo.priority}</b>
+            {!imagePreview ? (
+              <label
+                htmlFor="grievance-image-input"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "40px 20px",
+                  border: "2px dashed var(--soft-border)",
+                  borderRadius: "var(--radius-lg)",
+                  backgroundColor: "var(--soft-ivory)",
+                  cursor: "pointer",
+                  transition: "all var(--transition-fast)"
+                }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    const event = { target: { files: e.dataTransfer.files } };
+                    handleFileChange(event);
+                  }
+                }}
+              >
+                <div
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--muted-lavender)",
+                    color: "var(--midnight-indigo)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "12px"
+                  }}
+                >
+                  <FiUploadCloud size={28} />
+                </div>
+                <strong style={{ fontSize: "16px", color: "var(--midnight-indigo)", marginBottom: "4px" }}>
+                  Click to select photo or drag & drop here
+                </strong>
+                <span style={{ fontSize: "13px", color: "var(--muted-grey)" }}>
+                  Supports JPEG, PNG, WebP (Max 10MB)
+                </span>
+                <input
+                  id="grievance-image-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  required
+                />
+              </label>
+            ) : (
+              <div>
+                <div
+                  style={{
+                    position: "relative",
+                    borderRadius: "var(--radius-md)",
+                    overflow: "hidden",
+                    border: "1px solid var(--soft-border)",
+                    backgroundColor: "#000",
+                    textAlign: "center"
+                  }}
+                >
+                  <img
+                    src={imagePreview}
+                    alt="Grievance preview"
+                    style={{
+                      maxHeight: "320px",
+                      width: "100%",
+                      objectFit: "contain",
+                      display: "block"
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClearImage}
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      backgroundColor: "rgba(180, 35, 53, 0.9)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "var(--radius-sm)",
+                      padding: "6px 12px",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    <FiTrash2 size={14} /> Remove / Replace
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* AI Analysis In-Progress State */}
+            {aiAnalyzing && (
+              <div
+                style={{
+                  marginTop: "16px",
+                  padding: "14px",
+                  borderRadius: "var(--radius-md)",
+                  backgroundColor: "var(--muted-lavender)",
+                  border: "1px solid rgba(25, 25, 112, 0.2)",
+                  color: "var(--midnight-indigo)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "14px",
+                  fontWeight: "600"
+                }}
+              >
+                <FiCpu size={18} style={{ animation: "spin 2s linear infinite" }} />
+                <span>AI Vision Microservice analyzing defect geometry and severity...</span>
+              </div>
+            )}
+
+            {/* AI Detection Result Banner */}
+            {aiInfo && (
+              <div
+                style={{
+                  marginTop: "16px",
+                  padding: "16px",
+                  borderRadius: "var(--radius-md)",
+                  backgroundColor: "var(--success-bg)",
+                  border: "1px solid rgba(35, 122, 87, 0.3)",
+                  color: "var(--success-green)"
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <FiCheckCircle size={18} />
+                    <span style={{ fontSize: "15px", fontWeight: "700" }}>
+                      AI Auto-Detection: {aiInfo.category}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      backgroundColor: "var(--success-green)",
+                      color: "#ffffff",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      padding: "3px 8px",
+                      borderRadius: "var(--radius-full)"
+                    }}
+                  >
+                    {aiInfo.confidence}% Confidence
+                  </span>
+                </div>
+                <div style={{ marginTop: "8px", fontSize: "13px", color: "#1b5a3f", lineHeight: "1.4" }}>
+                  Auto-routed to: <strong>{aiInfo.department}</strong> • Computed Severity: <strong>{aiInfo.priority} Priority</strong>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 2: Category & Description */}
+          <div className="spgms-card" style={{ borderTop: "4px solid var(--warm-gold)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(212, 168, 90, 0.15)",
+                  color: "var(--deep-indigo)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "700",
+                  fontSize: "14px"
+                }}
+              >
+                2
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "18px" }}>Category & Description</h3>
+                <span style={{ fontSize: "12px", color: "var(--muted-grey)" }}>
+                  Specify the grievance nature and issue details
+                </span>
+              </div>
+            </div>
+
+            {/* Category Select */}
+            <div className="spgms-form-group">
+              <label className="spgms-label" htmlFor="grievance-category">
+                Complaint Category
+              </label>
+              <select
+                id="grievance-category"
+                className="spgms-select"
+                value={complaintCategory}
+                onChange={handleCategoryChange}
+                required
+              >
+                <option value="Pothole">Pothole (Road Infrastructure)</option>
+                <option value="Electricity Problem">Electricity Problem (Bescom / Power Grid)</option>
+                <option value="Water Leakage">Water Leakage (BWSSB / Municipal Pipeline)</option>
+              </select>
+            </div>
+
+            {/* Description Mode Selector Tabs */}
+            <div className="spgms-form-group">
+              <label className="spgms-label">Description Mode</label>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  marginBottom: "12px"
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleDescriptionTypeChange("auto")}
+                  style={{
+                    flex: 1,
+                    padding: "9px 14px",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    border: "1px solid",
+                    borderColor: descriptionType === "auto" ? "var(--midnight-indigo)" : "var(--soft-border)",
+                    backgroundColor: descriptionType === "auto" ? "var(--muted-lavender)" : "var(--soft-ivory)",
+                    color: descriptionType === "auto" ? "var(--midnight-indigo)" : "var(--dark-charcoal)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <FiCpu size={15} /> 🤖 AI-Assisted Auto Description
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDescriptionTypeChange("manual")}
+                  style={{
+                    flex: 1,
+                    padding: "9px 14px",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    border: "1px solid",
+                    borderColor: descriptionType === "manual" ? "var(--midnight-indigo)" : "var(--soft-border)",
+                    backgroundColor: descriptionType === "manual" ? "var(--muted-lavender)" : "var(--soft-ivory)",
+                    color: descriptionType === "manual" ? "var(--midnight-indigo)" : "var(--dark-charcoal)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <FiFileText size={15} /> ✍️ Custom Manual Description
+                </button>
+              </div>
+
+              <textarea
+                rows="4"
+                className="spgms-textarea"
+                placeholder={
+                  descriptionType === "auto"
+                    ? "Select an image above to automatically generate a technical grievance summary..."
+                    : "Enter detailed descriptions regarding the defect, traffic impact, or danger..."
+                }
+                value={manualDescription}
+                onChange={(e) => setManualDescription(e.target.value)}
+                required
+              />
             </div>
           </div>
-        )}
 
-        <label><b>Complaint Category</b></label>
-        <select
-          value={complaintCategory}
-          onChange={(e) => {
-            const cat = e.target.value;
-            setComplaintCategory(cat);
-            if (cat === "Pothole") setDepartment("Road Department");
-            else if (cat === "Electricity Problem") setDepartment("Electrical Department");
-            else if (cat === "Water Leakage") setDepartment("Water Department");
-          }}
-          style={inputStyle}
-          required
-        >
-          <option value="Pothole">Pothole</option>
-          <option value="Electricity Problem">Electricity Problem</option>
-          <option value="Water Leakage">Water Leakage</option>
-        </select>
+          {/* SECTION 3: Location & Geotagging */}
+          <div className="spgms-card" style={{ borderTop: "4px solid var(--midnight-indigo)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", flexWrap: "wrap", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--muted-lavender)",
+                    color: "var(--midnight-indigo)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: "700",
+                    fontSize: "14px"
+                  }}
+                >
+                  3
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "18px" }}>Incident Location</h3>
+                  <span style={{ fontSize: "12px", color: "var(--muted-grey)" }}>
+                    Pinpoint GPS coordinates and street address
+                  </span>
+                </div>
+              </div>
 
-        {/* Auto Description vs Manual Description Radio Options */}
-        <label><b>Problem Description</b></label>
-        <div style={{ margin: "10px 0 15px 0", display: "flex", gap: "25px", alignItems: "center" }}>
-          <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
-            <input
-              type="radio"
-              name="descriptionType"
-              value="auto"
-              checked={descriptionType === "auto"}
-              onChange={() => handleDescriptionTypeChange("auto")}
-            />
-            <b>Auto Description (AI-Assisted)</b>
-          </label>
+              <button
+                type="button"
+                onClick={handleAutoLocation}
+                disabled={detectingLocation}
+                className="spgms-btn spgms-btn-secondary spgms-btn-sm"
+                style={{
+                  backgroundColor: "var(--muted-lavender)",
+                  color: "var(--midnight-indigo)",
+                  borderColor: "rgba(25, 25, 112, 0.25)"
+                }}
+              >
+                <FiMapPin size={15} style={{ color: "var(--warm-gold)" }} />
+                {detectingLocation ? "Detecting GPS..." : "Auto-Detect My GPS"}
+              </button>
+            </div>
 
-          <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
-            <input
-              type="radio"
-              name="descriptionType"
-              value="manual"
-              checked={descriptionType === "manual"}
-              onChange={() => handleDescriptionTypeChange("manual")}
-            />
-            <b>Manual Description</b>
-          </label>
-        </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              <div className="spgms-form-group">
+                <label className="spgms-label" htmlFor="geo-lat">Latitude</label>
+                <input
+                  id="geo-lat"
+                  type="text"
+                  className="spgms-input"
+                  placeholder="e.g. 12.9716"
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                  required
+                />
+              </div>
 
-        <textarea
-          rows="4"
-          placeholder={descriptionType === "auto" ? "AI will auto-generate problem description upon image selection..." : "Enter detailed description manually..."}
-          value={manualDescription}
-          onChange={(e) => setManualDescription(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "20px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            boxSizing: "border-box",
-            fontFamily: "inherit"
-          }}
-          required
-        />
+              <div className="spgms-form-group">
+                <label className="spgms-label" htmlFor="geo-lng">Longitude</label>
+                <input
+                  id="geo-lng"
+                  type="text"
+                  className="spgms-input"
+                  placeholder="e.g. 77.5946"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
 
-        {/* Location Section with Auto-Detect Button */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-          <label style={{ margin: 0 }}><b>Location Coordinates & Address</b></label>
-          <button
-            type="button"
-            onClick={handleAutoLocation}
-            disabled={detectingLocation}
+            <div className="spgms-form-group" style={{ marginBottom: 0 }}>
+              <label className="spgms-label" htmlFor="geo-address">Street Address / Landmark</label>
+              <input
+                id="geo-address"
+                type="text"
+                className="spgms-input"
+                placeholder="e.g. 14th Main Rd, Indiranagar, Bengaluru, Karnataka"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+              <p className="spgms-helper">
+                Click "Auto-Detect My GPS" above to automatically fill address and coordinates.
+              </p>
+            </div>
+          </div>
+
+          {/* SECTION 4: Department & Priority Preview */}
+          <div
+            className="spgms-card"
             style={{
-              background: detectingLocation ? "#9ca3af" : "#10b981",
-              color: "white",
-              border: "none",
-              padding: "7px 14px",
-              borderRadius: "6px",
-              cursor: detectingLocation ? "not-allowed" : "pointer",
-              fontSize: "13px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px"
+              backgroundColor: "var(--muted-lavender)",
+              border: "1px solid rgba(25, 25, 112, 0.15)"
             }}
           >
-            {detectingLocation ? "⏳ Fetching GPS..." : "📍 Auto-Detect My Location"}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+              <FiShield size={16} style={{ color: "var(--midnight-indigo)" }} />
+              <h4 style={{ margin: 0, fontSize: "15px", color: "var(--midnight-indigo)" }}>
+                Automated Municipal Routing Summary
+              </h4>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              <div>
+                <span style={{ fontSize: "12px", color: "var(--muted-grey)", display: "block", marginBottom: "4px" }}>
+                  Assigned Department:
+                </span>
+                <strong style={{ fontSize: "14px", color: "var(--dark-charcoal)" }}>{department}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: "12px", color: "var(--muted-grey)", display: "block", marginBottom: "4px" }}>
+                  Initial Priority Level:
+                </span>
+                <span
+                  className={`spgms-badge ${
+                    priority === "High"
+                      ? "badge-priority-high"
+                      : priority === "Medium"
+                      ? "badge-priority-medium"
+                      : "badge-priority-low"
+                  }`}
+                >
+                  {priority} Priority
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Action */}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="spgms-btn spgms-btn-primary spgms-btn-lg"
+            style={{
+              width: "100%",
+              padding: "16px",
+              fontSize: "16px",
+              boxShadow: "var(--shadow-md)"
+            }}
+          >
+            {submitting ? "Analyzing & Lodging Grievance..." : "Submit Grievance to Department"}
+            {!submitting && <FiArrowRight size={18} />}
           </button>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-          <div>
-            <label style={{ fontSize: "13px" }}>Latitude</label>
-            <input
-              type="text"
-              placeholder="e.g. 12.9716"
-              value={latitude}
-              onChange={(e) => setLatitude(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: "13px" }}>Longitude</label>
-            <input
-              type="text"
-              placeholder="e.g. 77.5946"
-              value={longitude}
-              onChange={(e) => setLongitude(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </div>
-        </div>
-
-        <label><b>Address / Landmark</b></label>
-        <input
-          type="text"
-          placeholder="Current Address (or click Auto-Detect above)"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={inputStyle}
-          required
-        />
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-          <div>
-            <label><b>Assigned Department (Auto)</b></label>
-            <input
-              type="text"
-              value={department}
-              readOnly
-              style={{
-                ...inputStyle,
-                background: "#f1f5f9",
-                color: "#334155",
-                fontWeight: "500"
-              }}
-            />
-          </div>
-          <div>
-            <label><b>Priority (Auto)</b></label>
-            <input
-              type="text"
-              value={priority}
-              readOnly
-              style={{
-                ...inputStyle,
-                background: "#f1f5f9",
-                color: "#334155",
-                fontWeight: "500"
-              }}
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={submitting}
-          style={{
-            width: "100%",
-            padding: "15px",
-            backgroundColor: submitting ? "#93c5fd" : "#2563eb",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: submitting ? "not-allowed" : "pointer",
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginTop: "15px"
-          }}
-        >
-          {submitting ? "Analyzing & Submitting..." : "Submit Complaint"}
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginTop: "5px",
-  marginBottom: "15px",
-  borderRadius: "5px",
-  border: "1px solid #ccc",
-  boxSizing: "border-box",
-  fontSize: "14px"
-};
 
 export default SubmitComplaint;
