@@ -7,7 +7,6 @@ import {
   LuUser, 
   LuLogOut, 
   LuMenu,
-  LuFileText,
   LuSearch
 } from "react-icons/lu";
 import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
@@ -16,12 +15,14 @@ export default function CitizenHeader({
   user: propUser,
   onOpenSidebar,
   onOpenNotifications,
-  onOpenTrack,
-  unreadCount = 0
+  unreadCount = 2,
+  searchTerm = "",
+  onSearchChange
 }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   const user = propUser || getStoredUser();
   const displayName = getCitizenDisplayName(user);
@@ -38,6 +39,20 @@ export default function CitizenHeader({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Keyboard shortcut Ctrl + K or Cmd + K to focus search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleLogout = () => {
     setDropdownOpen(false);
     localStorage.removeItem("token");
@@ -48,8 +63,8 @@ export default function CitizenHeader({
 
   return (
     <header className="cd-top-header" role="banner">
+      {/* 1. Left: Brand & Mobile Toggle */}
       <div className="cd-header-left">
-        {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
           className="cd-header-hamburger"
@@ -59,13 +74,12 @@ export default function CitizenHeader({
           <LuMenu size={22} />
         </button>
 
-        {/* Brand Logo & Title */}
         <div 
           className="cd-header-brand" 
           onClick={() => navigate("/dashboard")}
           title="SPGMS — Smart Public Grievance Management System"
         >
-          {/* Square Champagne Gold Logo Container */}
+          {/* Blue Emblem Container */}
           <div className="cd-brand-icon-box">
             <LuLandmark size={20} className="cd-civic-building-icon" strokeWidth={2.2} />
           </div>
@@ -80,6 +94,24 @@ export default function CitizenHeader({
         </div>
       </div>
 
+      {/* 2. Center: Global Search Bar */}
+      <div className="cd-header-center-search">
+        <div className="cd-header-search-box">
+          <LuSearch size={16} className="cd-header-search-icon" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            className="cd-header-search-input"
+            placeholder="Search grievances, ID, or location..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+            aria-label="Search grievances, ID, or location"
+          />
+          <kbd className="cd-shortcut-badge">Ctrl + K</kbd>
+        </div>
+      </div>
+
+      {/* 3. Right: Notifications & Profile */}
       <div className="cd-header-right">
         {/* Notification Bell */}
         <button
@@ -90,10 +122,8 @@ export default function CitizenHeader({
           title="Civic updates & alerts"
         >
           <LuBell size={20} strokeWidth={2} />
-          {unreadCount > 0 ? (
+          {unreadCount > 0 && (
             <span className="cd-notification-badge-number">{unreadCount}</span>
-          ) : (
-            <span className="cd-notification-badge-dot" />
           )}
         </button>
 
@@ -106,8 +136,8 @@ export default function CitizenHeader({
             aria-expanded={dropdownOpen}
             aria-haspopup="true"
           >
-            {/* Circular Gold Avatar */}
-            <div className="cd-gold-avatar">
+            {/* Purple Avatar */}
+            <div className="cd-purple-avatar">
               <span>{displayInitial}</span>
             </div>
 
@@ -148,35 +178,7 @@ export default function CitizenHeader({
 
               <button
                 type="button"
-                className="cd-menu-item"
-                onClick={() => {
-                  setDropdownOpen(false);
-                  navigate("/my-complaints");
-                }}
-              >
-                <LuFileText size={16} />
-                <span>My Grievances</span>
-              </button>
-
-              {onOpenTrack && (
-                <button
-                  type="button"
-                  className="cd-menu-item"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    onOpenTrack();
-                  }}
-                >
-                  <LuSearch size={16} />
-                  <span>Track Status</span>
-                </button>
-              )}
-
-              <hr className="cd-menu-divider" />
-
-              <button
-                type="button"
-                className="cd-menu-item cd-menu-item-danger"
+                className="cd-menu-item logout"
                 onClick={handleLogout}
               >
                 <LuLogOut size={16} />

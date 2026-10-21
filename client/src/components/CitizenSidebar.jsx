@@ -1,12 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  LuLayoutGrid,
-  LuCirclePlus,
+  LuHouse,
   LuFileText,
   LuSearch,
   LuBell,
-  LuUser,
   LuLogOut,
+  LuChevronRight,
   LuX
 } from "react-icons/lu";
 import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
@@ -17,7 +16,7 @@ export default function CitizenSidebar({
   onClose,
   onOpenTrack,
   onOpenNotifications,
-  unreadCount = 0
+  unreadCount = 2
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,29 +37,20 @@ export default function CitizenSidebar({
     {
       id: "dashboard",
       label: "Dashboard",
-      icon: <LuLayoutGrid className="cd-sidebar-icon" />,
+      iconType: "gold-home",
       onClick: () => {
         if (onClose) onClose();
         if (location.pathname !== "/dashboard") {
           navigate("/dashboard");
         }
       },
-      isActive: location.pathname === "/dashboard"
-    },
-    {
-      id: "submit-grievance",
-      label: "Submit Grievance",
-      icon: <LuCirclePlus className="cd-sidebar-icon" />,
-      onClick: () => {
-        if (onClose) onClose();
-        navigate("/submit-complaint");
-      },
-      isActive: location.pathname === "/submit-complaint"
+      isActive: location.pathname === "/dashboard",
+      showChevron: true
     },
     {
       id: "my-grievances",
       label: "My Grievances",
-      icon: <LuFileText className="cd-sidebar-icon" />,
+      iconType: "indigo-file",
       onClick: () => {
         if (onClose) onClose();
         navigate("/my-complaints");
@@ -70,7 +60,7 @@ export default function CitizenSidebar({
     {
       id: "track-status",
       label: "Track Status",
-      icon: <LuSearch className="cd-sidebar-icon" />,
+      iconType: "indigo-search",
       onClick: () => {
         if (onClose) onClose();
         if (onOpenTrack) onOpenTrack();
@@ -80,23 +70,13 @@ export default function CitizenSidebar({
     {
       id: "notifications",
       label: "Notifications",
-      icon: <LuBell className="cd-sidebar-icon" />,
+      iconType: "indigo-bell",
       onClick: () => {
         if (onClose) onClose();
         if (onOpenNotifications) onOpenNotifications();
       },
       isActive: false,
-      badge: unreadCount > 0 ? unreadCount : null
-    },
-    {
-      id: "profile",
-      label: "Profile",
-      icon: <LuUser className="cd-sidebar-icon" />,
-      onClick: () => {
-        if (onClose) onClose();
-        navigate("/profile");
-      },
-      isActive: location.pathname === "/profile"
+      badge: unreadCount > 0 ? unreadCount : 2
     }
   ];
 
@@ -111,7 +91,7 @@ export default function CitizenSidebar({
       )}
 
       <aside className={`cd-sidebar ${isOpen ? "mobile-open" : ""}`} aria-label="Citizen portal navigation">
-        {/* Mobile close button (visible only in mobile drawer mode) */}
+        {/* Mobile close button */}
         <div className="cd-sidebar-mobile-close">
           <button
             type="button"
@@ -123,14 +103,14 @@ export default function CitizenSidebar({
           </button>
         </div>
 
-        {/* Centered citizen avatar & dynamic profile */}
+        {/* User Profile Card */}
         <div className="cd-avatar-block">
           <div
             className="cd-avatar-circle"
             title={displayName}
             aria-label={`Citizen profile for ${displayName}`}
           >
-            <LuUser size={26} strokeWidth={1.8} />
+            <span>{displayInitial}</span>
           </div>
           <span className="cd-avatar-name">{displayName}</span>
           <span className="cd-avatar-status">
@@ -148,12 +128,23 @@ export default function CitizenSidebar({
                   className={`cd-nav-button ${item.isActive ? "active" : ""}`}
                   onClick={item.onClick}
                 >
-                  {item.icon}
+                  <div className={`cd-nav-icon-badge ${item.iconType}`}>
+                    {item.iconType === "gold-home" && <LuHouse size={16} strokeWidth={2.4} />}
+                    {item.iconType === "indigo-file" && <LuFileText size={16} strokeWidth={2.2} />}
+                    {item.iconType === "indigo-search" && <LuSearch size={16} strokeWidth={2.2} />}
+                    {item.iconType === "indigo-bell" && <LuBell size={16} strokeWidth={2.2} />}
+                  </div>
+
                   <span className="cd-nav-label">{item.label}</span>
+
                   {item.badge && (
                     <span className="cd-nav-badge">
                       {item.badge}
                     </span>
+                  )}
+
+                  {item.showChevron && (
+                    <LuChevronRight size={16} className="cd-nav-chevron" />
                   )}
                 </button>
               </li>
@@ -161,16 +152,15 @@ export default function CitizenSidebar({
           </ul>
         </nav>
 
-        {/* Bottom sign out with thin divider above */}
+        {/* Bottom sign out button */}
         <div className="cd-sidebar-bottom">
-          <hr className="cd-sidebar-divider" />
           <button
             type="button"
             className="cd-signout-button"
             onClick={handleLogout}
             title="Sign out of SPGMS"
           >
-            <LuLogOut size={18} strokeWidth={1.8} className="cd-sidebar-icon" />
+            <LuLogOut size={18} strokeWidth={2} className="cd-signout-icon" />
             <span>Sign Out</span>
           </button>
         </div>
