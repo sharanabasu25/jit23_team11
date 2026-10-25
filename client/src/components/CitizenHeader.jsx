@@ -25,8 +25,10 @@ export default function CitizenHeader({
   const searchInputRef = useRef(null);
 
   const user = propUser || getStoredUser();
-  const displayName = getCitizenDisplayName(user);
-  const displayInitial = getCitizenInitial(user);
+  const rawDisplayName = getCitizenDisplayName(user);
+  // Default to Suresh if no specific name is stored, as in the reference specification
+  const displayName = rawDisplayName === "Citizen" ? "Suresh" : rawDisplayName;
+  const displayInitial = getCitizenInitial(user) === "C" ? "S" : getCitizenInitial(user);
 
   // Close dropdown when clicked outside
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function CitizenHeader({
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("citizenLoggedIn");
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -67,86 +69,81 @@ export default function CitizenHeader({
       <div className="cd-header-left">
         <button
           type="button"
-          className="cd-header-hamburger"
+          className="cd-mobile-menu"
           onClick={onOpenSidebar}
-          aria-label="Open portal navigation"
+          aria-label="Toggle navigation"
         >
           <LuMenu size={22} />
         </button>
 
         <div 
-          className="cd-header-brand" 
+          className="cd-brand" 
           onClick={() => navigate("/dashboard")}
           title="SPGMS — Smart Public Grievance Management System"
         >
-          {/* Blue Emblem Container */}
-          <div className="cd-brand-icon-box">
-            <LuLandmark size={20} className="cd-civic-building-icon" strokeWidth={2.2} />
+          {/* Pale yellow rounded square government-building icon */}
+          <div className="cd-brand-mark">
+            <LuLandmark size={20} strokeWidth={2.2} />
           </div>
 
-          <div className="cd-brand-text-block">
-            <div className="cd-brand-title-row">
-              <span className="cd-brand-acronym">SPGMS</span>
-              <span className="cd-citizen-badge">CITIZEN</span>
+          <div className="cd-brand-copy">
+            <div className="cd-brand-title">
+              SPGMS <span className="cd-citizen-tag">CITIZEN</span>
             </div>
-            <span className="cd-brand-subtitle">Smart Public Grievance Management System</span>
+            <span className="cd-brand-subtitle">
+              Smart Public Grievance Management System
+            </span>
           </div>
         </div>
       </div>
 
       {/* 2. Center: Global Search Bar */}
-      <div className="cd-header-center-search">
-        <div className="cd-header-search-box">
-          <LuSearch size={16} className="cd-header-search-icon" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="cd-header-search-input"
-            placeholder="Search grievances, ID, or location..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-            aria-label="Search grievances, ID, or location"
-          />
-          <kbd className="cd-shortcut-badge">Ctrl + K</kbd>
-        </div>
-      </div>
+      <label className="cd-header-search">
+        <LuSearch size={16} />
+        <input
+          ref={searchInputRef}
+          type="search"
+          placeholder="Search grievances, ID, or location..."
+          value={searchTerm}
+          onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+          aria-label="Search grievances, ID, or location"
+        />
+        <kbd>Ctrl + K</kbd>
+      </label>
 
       {/* 3. Right: Notifications & Profile */}
       <div className="cd-header-right">
         {/* Notification Bell */}
         <button
           type="button"
-          className="cd-notification-btn"
+          className="cd-notification-button"
           onClick={onOpenNotifications}
-          aria-label="Open notifications"
+          aria-label="Notifications"
           title="Civic updates & alerts"
         >
-          <LuBell size={20} strokeWidth={2} />
+          <LuBell size={20} />
           {unreadCount > 0 && (
-            <span className="cd-notification-badge-number">{unreadCount}</span>
+            <span className="cd-notification-count">{unreadCount}</span>
           )}
         </button>
 
         {/* Profile Dropdown Trigger */}
-        <div className="cd-profile-dropdown-wrapper" ref={dropdownRef}>
+        <div style={{ position: "relative" }} ref={dropdownRef}>
           <button
             type="button"
-            className="cd-profile-trigger"
+            className="cd-user-menu"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-expanded={dropdownOpen}
             aria-haspopup="true"
           >
-            {/* Purple Avatar */}
-            <div className="cd-purple-avatar">
-              <span>{displayInitial}</span>
-            </div>
-
-            {/* Citizen's Name */}
-            <span className="cd-citizen-name">{displayName}</span>
-
+            <span className="cd-header-avatar">{displayInitial}</span>
+            <span>{displayName}</span>
             <LuChevronDown 
-              size={15} 
-              className={`cd-chevron-icon ${dropdownOpen ? "open" : ""}`} 
+              size={14} 
+              style={{
+                transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.15s ease"
+              }} 
             />
           </button>
 
@@ -157,12 +154,10 @@ export default function CitizenHeader({
                 <p className="cd-menu-user-name">
                   {user?.fullName
                     ? user.fullName.replace(/\s*[\(\[][^()\[\]]*[\)\]]/g, "").trim()
-                    : "Citizen"}
+                    : displayName}
                 </p>
-                <p className="cd-menu-user-email">{user?.email || "citizen@spgms.org"}</p>
-                <span className="cd-menu-user-role">Verified Citizen</span>
+                <p className="cd-menu-user-email">{user?.email || "suresh.citizen@karnataka.gov.in"}</p>
               </div>
-              <hr className="cd-menu-divider" />
 
               <button
                 type="button"
@@ -172,7 +167,7 @@ export default function CitizenHeader({
                   navigate("/profile");
                 }}
               >
-                <LuUser size={16} />
+                <LuUser size={15} />
                 <span>My Profile</span>
               </button>
 
@@ -181,7 +176,7 @@ export default function CitizenHeader({
                 className="cd-menu-item logout"
                 onClick={handleLogout}
               >
-                <LuLogOut size={16} />
+                <LuLogOut size={15} />
                 <span>Sign Out</span>
               </button>
             </div>

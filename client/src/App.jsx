@@ -34,11 +34,12 @@ import OfficerProfile from "./pages/officer/OfficerProfile";
 function Layout() {
   const location = useLocation();
 
-  // Hide Citizen Navbar & Footer on Officer pages, Citizen Dashboard, and Login page
+  // Hide Citizen Navbar & Footer on Officer pages, Citizen Dashboard, My Grievances, and Login page
   const isOfficerRoute = location.pathname.startsWith("/officer");
   const isCitizenDashboard = location.pathname === "/dashboard";
+  const isMyComplaints = location.pathname === "/my-complaints";
   const isLoginPage = location.pathname === "/login";
-  const hideNavFooter = isOfficerRoute || isCitizenDashboard || isLoginPage;
+  const hideNavFooter = isOfficerRoute || isCitizenDashboard || isMyComplaints || isLoginPage;
 
   return (
     <>

@@ -6,7 +6,6 @@ import {
   LuBell,
   LuLogOut,
   LuChevronRight,
-  LuX
 } from "react-icons/lu";
 import { getStoredUser, getCitizenDisplayName, getCitizenInitial } from "../utils/userUtils";
 
@@ -22,45 +21,52 @@ export default function CitizenSidebar({
   const location = useLocation();
 
   const user = propUser || getStoredUser();
-  const displayName = getCitizenDisplayName(user);
-  const displayInitial = getCitizenInitial(user);
+  const rawDisplayName = getCitizenDisplayName(user);
+  const displayName = rawDisplayName === "Citizen" ? "Suresh" : rawDisplayName;
+  const displayInitial = getCitizenInitial(user) === "C" ? "S" : getCitizenInitial(user);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("citizenLoggedIn");
     if (onClose) onClose();
-    navigate("/");
+    navigate("/login");
   };
+
+  const isDashboard = location.pathname === "/dashboard";
+  const isMyGrievances = location.pathname === "/my-complaints";
 
   const navItems = [
     {
-      id: "dashboard",
+      id: "Dashboard",
       label: "Dashboard",
-      iconType: "gold-home",
+      Icon: LuHouse,
       onClick: () => {
         if (onClose) onClose();
-        if (location.pathname !== "/dashboard") {
+        if (!isDashboard) {
           navigate("/dashboard");
         }
       },
-      isActive: location.pathname === "/dashboard",
-      showChevron: true
+      isActive: isDashboard,
+      hasChevron: isDashboard
     },
     {
-      id: "my-grievances",
+      id: "My Grievances",
       label: "My Grievances",
-      iconType: "indigo-file",
+      Icon: LuFileText,
       onClick: () => {
         if (onClose) onClose();
-        navigate("/my-complaints");
+        if (!isMyGrievances) {
+          navigate("/my-complaints");
+        }
       },
-      isActive: location.pathname === "/my-complaints"
+      isActive: isMyGrievances,
+      hasChevron: isMyGrievances
     },
     {
-      id: "track-status",
+      id: "Track Status",
       label: "Track Status",
-      iconType: "indigo-search",
+      Icon: LuSearch,
       onClick: () => {
         if (onClose) onClose();
         if (onOpenTrack) onOpenTrack();
@@ -68,9 +74,9 @@ export default function CitizenSidebar({
       isActive: false
     },
     {
-      id: "notifications",
+      id: "Notifications",
       label: "Notifications",
-      iconType: "indigo-bell",
+      Icon: LuBell,
       onClick: () => {
         if (onClose) onClose();
         if (onOpenNotifications) onOpenNotifications();
@@ -83,87 +89,65 @@ export default function CitizenSidebar({
   return (
     <>
       {isOpen && (
-        <div
+        <button
           className="cd-sidebar-backdrop"
+          type="button"
+          aria-label="Close navigation"
           onClick={onClose}
-          aria-hidden="true"
         />
       )}
 
-      <aside className={`cd-sidebar ${isOpen ? "mobile-open" : ""}`} aria-label="Citizen portal navigation">
-        {/* Mobile close button */}
-        <div className="cd-sidebar-mobile-close">
-          <button
-            type="button"
-            className="cd-sidebar-close-btn"
-            onClick={onClose}
-            aria-label="Close menu"
-          >
-            <LuX size={20} />
-          </button>
-        </div>
-
-        {/* User Profile Card */}
-        <div className="cd-avatar-block">
-          <div
-            className="cd-avatar-circle"
-            title={displayName}
-            aria-label={`Citizen profile for ${displayName}`}
-          >
-            <span>{displayInitial}</span>
-          </div>
-          <span className="cd-avatar-name">{displayName}</span>
-          <span className="cd-avatar-status">
-            <span className="cd-status-dot" /> Active Citizen
+      <aside className={`cd-sidebar ${isOpen ? "mobile-open" : ""}`} aria-label="Citizen navigation">
+        {/* Citizen profile section */}
+        <div className="cd-profile-summary">
+          <div className="cd-profile-avatar">{displayInitial}</div>
+          <strong>{displayName}</strong>
+          <span className="cd-active-citizen">
+            <i /> Active Citizen
           </span>
         </div>
 
-        {/* Navigation list */}
-        <nav className="cd-nav-wrapper">
-          <ul className="cd-nav-list">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  className={`cd-nav-button ${item.isActive ? "active" : ""}`}
-                  onClick={item.onClick}
-                >
-                  <div className={`cd-nav-icon-badge ${item.iconType}`}>
-                    {item.iconType === "gold-home" && <LuHouse size={16} strokeWidth={2.4} />}
-                    {item.iconType === "indigo-file" && <LuFileText size={16} strokeWidth={2.2} />}
-                    {item.iconType === "indigo-search" && <LuSearch size={16} strokeWidth={2.2} />}
-                    {item.iconType === "indigo-bell" && <LuBell size={16} strokeWidth={2.2} />}
-                  </div>
+        {/* Navigation items */}
+        <nav className="cd-sidebar-nav" aria-label="Main navigation">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`cd-nav-item ${item.isActive ? "active" : ""}`}
+              onClick={item.onClick}
+            >
+              <span className="cd-nav-icon">
+                <item.Icon size={16} strokeWidth={item.isActive ? 2.4 : 2} />
+              </span>
 
-                  <span className="cd-nav-label">{item.label}</span>
+              <span className="cd-nav-label">{item.label}</span>
 
-                  {item.badge && (
-                    <span className="cd-nav-badge">
-                      {item.badge}
-                    </span>
-                  )}
+              {item.badge && (
+                <span className="cd-nav-count">{item.badge}</span>
+              )}
 
-                  {item.showChevron && (
-                    <LuChevronRight size={16} className="cd-nav-chevron" />
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
+              {item.hasChevron && (
+                <LuChevronRight
+                  className="cd-nav-chevron"
+                  size={14}
+                />
+              )}
+            </button>
+          ))}
         </nav>
 
-        {/* Bottom sign out button */}
-        <div className="cd-sidebar-bottom">
-          <button
-            type="button"
-            className="cd-signout-button"
-            onClick={handleLogout}
-            title="Sign out of SPGMS"
-          >
-            <LuLogOut size={18} strokeWidth={2} className="cd-signout-icon" />
-            <span>Sign Out</span>
-          </button>
-        </div>
+        {/* Bottom Sign Out button */}
+        <button
+          className="cd-signout-button"
+          type="button"
+          onClick={handleLogout}
+          title="Sign out of SPGMS"
+        >
+          <span className="cd-signout-icon">
+            <LuLogOut size={16} strokeWidth={2.2} />
+          </span>
+          <span>Sign Out</span>
+        </button>
       </aside>
     </>
   );

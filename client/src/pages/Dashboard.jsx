@@ -1,364 +1,367 @@
-
-import React, { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
-  Landmark,
-  Search,
-  Bell,
-  ChevronDown,
-  ChevronRight,
-  House,
-  FileText,
-  UserRound,
-  LogOut,
-  Clock3,
-  RefreshCw,
-  Check,
-  Droplet,
-  Lightbulb,
-  Construction,
-  Plus,
-  Headphones,
-  LayoutGrid,
-  ArrowRight,
-  Megaphone,
-  Menu,
-  X,
-  MapPin,
-  CalendarDays,
-} from "lucide-react";
+  LuFileText,
+  LuClock,
+  LuRefreshCw,
+  LuCheck,
+  LuChevronRight,
+  LuLayoutGrid,
+  LuPlus,
+  LuBell,
+  LuUserRound,
+  LuHeadphones,
+  LuLightbulb,
+  LuDroplets,
+  LuConstruction,
+  LuArrowRight,
+} from "react-icons/lu";
+
+import CitizenHeader from "../components/CitizenHeader";
+import CitizenSidebar from "../components/CitizenSidebar";
+import CivicBanner from "../components/CivicBanner";
+import TrackModal from "../components/TrackModal";
+import NotificationDrawer from "../components/NotificationDrawer";
+import HelpSupportModal from "../components/HelpSupportModal";
+import { getStoredUser, getCitizenDisplayName } from "../utils/userUtils";
+
+import thumbStreetlight from "../assets/thumb-streetlight.jpg";
+import thumbWater from "../assets/thumb-water.jpg";
+import thumbPothole from "../assets/thumb-pothole.jpg";
+
 import "../citizenDashboard.css";
 
-const grievances = [
+// Default reference grievances matching the design specification
+const defaultGrievances = [
   {
     id: "SPGMS-2026-3406",
+    rawId: "SPGMS-2026-3406",
     title: "Street Light Not Working",
     date: "18 Oct 2026",
     status: "Pending",
     type: "light",
-    image:
-      "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=240&q=80",
+    image: thumbStreetlight,
+    fallbackImage: "/thumb-streetlight.jpg",
   },
   {
     id: "SPGMS-2026-3407",
+    rawId: "SPGMS-2026-3407",
     title: "Water Supply Issue",
     date: "18 Oct 2026",
     status: "Resolved",
     type: "water",
-    image:
-      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=240&q=80",
+    image: thumbWater,
+    fallbackImage: "/thumb-water.jpg",
   },
   {
     id: "SPGMS-2026-3405",
+    rawId: "SPGMS-2026-3405",
     title: "Road Maintenance Request",
     date: "18 Oct 2026",
     status: "In Progress",
     type: "road",
-    image:
-      "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=240&q=80",
+    image: thumbPothole,
+    fallbackImage: "/thumb-pothole.jpg",
   },
 ];
 
-const stats = [
-  { label: "Total Grievances", value: "3", note: "3 this month", kind: "total", Icon: FileText },
-  { label: "Pending", value: "1", note: "0 this month", kind: "pending", Icon: Clock3 },
-  { label: "In Progress", value: "1", note: "0 this month", kind: "progress", Icon: RefreshCw },
-  { label: "Resolved", value: "1", note: "1 this month", kind: "resolved", Icon: Check },
-];
-
 function StatusPill({ status }) {
+  const norm = (status || "Pending").toLowerCase().replace(/\s+/g, "-");
   return (
-    <span className={`cd-status cd-status-${status.toLowerCase().replaceAll(" ", "-")}`}>
+    <span className={`cd-status cd-status-${norm}`}>
       {status}
     </span>
   );
 }
 
 function GrievanceTypeIcon({ type }) {
-  if (type === "water") return <Droplet size={23} />;
-  if (type === "road") return <Construction size={23} />;
-  return <Lightbulb size={23} />;
+  if (type === "water") {
+    return <LuDroplets size={16} strokeWidth={2.2} />;
+  }
+  if (type === "road") {
+    return <LuConstruction size={16} strokeWidth={2.2} />;
+  }
+  return <LuLightbulb size={16} strokeWidth={2.2} />;
 }
 
 export default function Dashboard() {
-  const [activeNav, setActiveNav] = useState("Dashboard");
+  const navigate = useNavigate();
+  const [complaints, setComplaints] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [user, setUser] = useState(() => getStoredUser());
+
+  // Modals state
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(false);
 
-  const navItems = [
-    { label: "Dashboard", Icon: House },
-    { label: "My Grievances", Icon: FileText },
-    { label: "Track Status", Icon: Search },
-    { label: "Notifications", Icon: Bell, count: 2 },
-  ];
+  // Get citizen display name with fallback to "Suresh" as requested
+  const rawDisplayName = useMemo(() => getCitizenDisplayName(user), [user]);
+  const displayName = rawDisplayName === "Citizen" ? "Suresh" : rawDisplayName;
 
+  const token = localStorage.getItem("token");
+
+  // Fetch real grievances from backend if user is authenticated
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchGrievances = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/complaints/history", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setComplaints(response.data);
+
+          // Update user from complaint citizen profile if available
+          const citizenDb = response.data[0]?.citizen;
+          if (citizenDb && citizenDb.fullName) {
+            setUser((prev) => {
+              const updated = { ...(prev || {}), ...citizenDb };
+              localStorage.setItem("user", JSON.stringify(updated));
+              return updated;
+            });
+          }
+        }
+      } catch (err) {
+        // Safe fallback - development or offline mode uses default reference data
+        console.warn("Using offline reference grievances:", err.message);
+      }
+    };
+
+    fetchGrievances();
+  }, [token]);
+
+  // Derived counts: if real backend complaints exist, calculate actual statistics;
+  // otherwise default to exact reference values (3, 1, 1, 1).
+  const stats = useMemo(() => {
+    if (complaints.length > 0) {
+      const total = complaints.length;
+      const pending = complaints.filter(
+        (c) => c.status === "Pending" || c.status === "Seen"
+      ).length;
+      const progress = complaints.filter(
+        (c) => c.status === "In Progress"
+      ).length;
+      const resolved = complaints.filter(
+        (c) => c.status === "Resolved"
+      ).length;
+
+      return [
+        { label: "Total Grievances", value: total, trend: `▲ +${total} this month`, kind: "total", Icon: LuFileText },
+        { label: "Pending", value: pending, trend: "▲ +0 this month", kind: "pending", Icon: LuClock },
+        { label: "In Progress", value: progress, trend: "▲ +0 this month", kind: "progress", Icon: LuRefreshCw },
+        { label: "Resolved", value: resolved, trend: `▲ +${resolved} this month`, kind: "resolved", Icon: LuCheck },
+      ];
+    }
+
+    return [
+      { label: "Total Grievances", value: 3, trend: "▲ +3 this month", kind: "total", Icon: LuFileText },
+      { label: "Pending", value: 1, trend: "▲ +0 this month", kind: "pending", Icon: LuClock },
+      { label: "In Progress", value: 1, trend: "▲ +0 this month", kind: "progress", Icon: LuRefreshCw },
+      { label: "Resolved", value: 1, trend: "▲ +1 this month", kind: "resolved", Icon: LuCheck },
+    ];
+  }, [complaints]);
+
+  // Merge real grievances with default reference items
+  const grievancesList = useMemo(() => {
+    if (complaints.length > 0) {
+      return complaints.map((c) => {
+        const shortId = `SPGMS-${new Date(c.createdAt || Date.now()).getFullYear()}-${(c._id || "").slice(-4).toUpperCase()}`;
+        let type = "light";
+        let image = thumbStreetlight;
+        const cat = (c.complaintCategory || "").toLowerCase();
+
+        if (cat.includes("water") || cat.includes("drainage") || cat.includes("sewage")) {
+          type = "water";
+          image = thumbWater;
+        } else if (cat.includes("road") || cat.includes("pothole")) {
+          type = "road";
+          image = thumbPothole;
+        }
+
+        const dateStr = new Date(c.createdAt || Date.now()).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+
+        return {
+          id: shortId,
+          rawId: c._id,
+          title: c.title || `${c.complaintCategory || "Civic Issue"} Report`,
+          date: dateStr,
+          status: c.status || "Pending",
+          type,
+          image: c.photoUrl || image,
+          fallbackImage: image,
+        };
+      });
+    }
+
+    return defaultGrievances;
+  }, [complaints]);
+
+  // Search filter
+  const filteredGrievances = useMemo(() => {
+    if (!searchTerm.trim()) return grievancesList.slice(0, 3);
+    const term = searchTerm.toLowerCase();
+    return grievancesList.filter(
+      (item) =>
+        item.title.toLowerCase().includes(term) ||
+        item.id.toLowerCase().includes(term) ||
+        item.status.toLowerCase().includes(term)
+    );
+  }, [grievancesList, searchTerm]);
+
+  // Quick action items matching specification
   const quickActions = [
     {
       title: "Track Status",
-      text: "Check your complaint progress",
-      Icon: Plus,
-      action: "Track Status",
+      subtitle: "Enter complaint ID to check progress",
+      Icon: LuPlus,
+      action: () => setIsTrackModalOpen(true),
     },
     {
       title: "My Grievances",
-      text: "View your submitted complaints",
-      Icon: FileText,
-      action: "My Grievances",
+      subtitle: "View and manage your complaints",
+      Icon: LuFileText,
+      action: () => navigate("/my-complaints"),
     },
     {
       title: "Notifications",
-      text: "View recent updates",
-      Icon: Bell,
-      action: "Notifications",
-      count: 2,
+      subtitle: "Stay updated on your grievances",
+      Icon: LuBell,
+      badge: 2,
+      action: () => setIsNotifOpen(true),
     },
     {
       title: "Profile",
-      text: "Manage your account details",
-      Icon: UserRound,
-      action: "Profile",
+      subtitle: "Manage your account details",
+      Icon: LuUserRound,
+      action: () => navigate("/profile"),
     },
     {
       title: "Help & Support",
-      text: "Get assistance and FAQs",
-      Icon: Headphones,
-      action: "Help & Support",
+      subtitle: "Get assistance and FAQs",
+      Icon: LuHeadphones,
+      action: () => setIsHelpOpen(true),
     },
   ];
 
-  const selectNav = (label) => {
-    setActiveNav(label);
-    setMobileMenuOpen(false);
-  };
-
-  const filteredGrievances = grievances.filter((item) =>
-    `${item.title} ${item.id} ${item.status}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
-
-  const displayedGrievances = showAll
-    ? filteredGrievances
-    : filteredGrievances.slice(0, 3);
-
   return (
     <div className="cd-app-shell">
-      <header className="cd-top-header">
-        <button
-          className="cd-mobile-menu"
-          type="button"
-          aria-label="Toggle navigation"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+      {/* 1. Dark Navy Top Navigation Bar */}
+      <CitizenHeader
+        user={user}
+        onOpenSidebar={() => setMobileMenuOpen(true)}
+        onOpenNotifications={() => setIsNotifOpen(true)}
+        unreadCount={2}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+      />
 
-        <div className="cd-brand">
-          <div className="cd-brand-mark">
-            <Landmark size={28} />
-          </div>
-          <div className="cd-brand-copy">
-            <div className="cd-brand-title">
-              SPGMS <span className="cd-citizen-tag">CITIZEN</span>
-            </div>
-            <div className="cd-brand-subtitle">
-              Smart Public Grievance Management System
-            </div>
-          </div>
-        </div>
-
-        <label className="cd-header-search">
-          <Search size={18} />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search grievances, ID, or location..."
-            aria-label="Search grievances"
-          />
-          <kbd>Ctrl + K</kbd>
-        </label>
-
-        <div className="cd-header-right">
-          <button
-            className="cd-notification-button"
-            type="button"
-            aria-label="Notifications"
-            onClick={() => selectNav("Notifications")}
-          >
-            <Bell size={22} />
-            <span className="cd-notification-count">2</span>
-          </button>
-
-          <button
-            className="cd-user-menu"
-            type="button"
-            onClick={() => selectNav("Profile")}
-          >
-            <span className="cd-header-avatar">S</span>
-            <span>Suresh</span>
-            <ChevronDown size={16} />
-          </button>
-        </div>
-      </header>
-
+      {/* 2. Main Dashboard Layout */}
       <div className="cd-dashboard-layout">
-        {mobileMenuOpen && (
-          <button
-            className="cd-sidebar-backdrop"
-            type="button"
-            aria-label="Close navigation"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-        )}
+        {/* Left Slim Sidebar */}
+        <CitizenSidebar
+          user={user}
+          isOpen={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          onOpenTrack={() => setIsTrackModalOpen(true)}
+          onOpenNotifications={() => setIsNotifOpen(true)}
+          unreadCount={2}
+        />
 
-        <aside className={`cd-sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          <div className="cd-profile-summary">
-            <div className="cd-profile-avatar">S</div>
-            <strong>Suresh</strong>
-            <span className="cd-active-citizen">
-              <i /> Active Citizen
-            </span>
-          </div>
-
-          <nav className="cd-sidebar-nav" aria-label="Main navigation">
-            {navItems.map(({ label, Icon, count }) => (
-              <button
-                key={label}
-                type="button"
-                className={`cd-nav-item ${activeNav === label ? "active" : ""}`}
-                onClick={() => selectNav(label)}
-              >
-                <span className="cd-nav-icon">
-                  <Icon size={20} />
-                </span>
-
-                <span className="cd-nav-label">{label}</span>
-
-                {count && (
-                  <span className="cd-nav-count">{count}</span>
-                )}
-
-                {activeNav === label && (
-                  <ChevronRight
-                    className="cd-nav-chevron"
-                    size={16}
-                  />
-                )}
-              </button>
-            ))}
-          </nav>
-
-          <button
-            className="cd-signout-button"
-            type="button"
-            onClick={() => selectNav("Sign Out")}
-          >
-            <span className="cd-signout-icon">
-              <LogOut size={20} />
-            </span>
-            <span>Sign Out</span>
-          </button>
-        </aside>
-
+        {/* Main Content Area */}
         <main className="cd-main-content">
+          {/* Welcome Section */}
           <section className="cd-welcome-row">
-            <div>
-              <h1>
-                Welcome back, Suresh! <span className="cd-wave">👋</span>
-              </h1>
-              <p>
-                Here’s your civic overview. Report issues, track progress,
-                and help build a better Karnataka.
-              </p>
-            </div>
+            <h1>
+              Welcome back, {displayName}! <span className="cd-wave">👋</span>
+            </h1>
+            <p>
+              Here's your civic overview. Report issues, track progress, and help build a better Karnataka.
+            </p>
           </section>
 
+          {/* Four Statistics Cards */}
           <section className="cd-stats-row" aria-label="Grievance summary">
-            {stats.map(({ label, value, note, kind, Icon }) => (
+            {stats.map(({ label, value, trend, kind, Icon }) => (
               <article className={`cd-stat-card cd-stat-${kind}`} key={label}>
                 <div className="cd-stat-icon">
-                  <Icon size={31} />
+                  <Icon size={22} strokeWidth={kind === "resolved" ? 2.8 : 2} />
                 </div>
 
                 <div className="cd-stat-info">
                   <span className="cd-stat-label">{label}</span>
                   <strong>{value}</strong>
-                  <span className="cd-stat-note">{note}</span>
+                  <span className="cd-stat-note">{trend}</span>
                 </div>
 
                 <button
                   className="cd-stat-arrow"
                   type="button"
                   aria-label={`View ${label}`}
-                  onClick={() => selectNav(label)}
+                  onClick={() => navigate("/my-complaints")}
                 >
-                  <ChevronRight size={17} />
+                  <LuChevronRight size={13} strokeWidth={2.4} />
                 </button>
               </article>
             ))}
           </section>
 
-          <section className="cd-civic-hero-banner">
-            <div className="cd-banner-photo" />
-            <div className="cd-banner-shade" />
+          {/* Large Civic-Issues Banner */}
+          <CivicBanner />
 
-            <div className="cd-banner-copy">
-              <div className="cd-banner-eyebrow">
-                <Megaphone size={18} />
-                YOUR VOICE MATTERS
-                <span />
-              </div>
-
-              <h2>
-                Report <em>Civic</em> Issues
-              </h2>
-
-              <p>Water <b>•</b> Electricity <b>•</b> Roads</p>
-            </div>
-
-            <div className="cd-banner-actions">
-              <button type="button" onClick={() => selectNav("My Grievances")}>
-                <Droplet size={21} />
-                Water
-              </button>
-              <button type="button" onClick={() => selectNav("My Grievances")}>
-                <span className="cd-bolt">ϟ</span>
-                Electricity
-              </button>
-              <button type="button" onClick={() => selectNav("My Grievances")}>
-                <Construction size={21} />
-                Roads
-              </button>
-            </div>
-          </section>
-
+          {/* Bottom Grid: Recent Grievances (Left) + Quick Actions (Right) */}
           <div className="cd-lower-grid">
+            {/* Left Card: Recent Grievances */}
             <section className="cd-panel cd-recent-panel">
               <div className="cd-panel-heading">
                 <h2>
-                  <FileText size={24} />
+                  <LuFileText size={18} strokeWidth={2.2} />
                   Recent Grievances
                 </h2>
 
                 <button
                   className="cd-view-all"
                   type="button"
-                  onClick={() => setShowAll(!showAll)}
+                  onClick={() => navigate("/my-complaints")}
                 >
-                  {showAll ? "Show Less" : "View All"}
-                  <ArrowRight size={16} />
+                  View All
+                  <LuArrowRight size={13} strokeWidth={2.4} />
                 </button>
               </div>
 
               <div className="cd-grievance-list">
-                {displayedGrievances.length > 0 ? (
-                  displayedGrievances.map((item) => (
-                    <article className="cd-grievance-row" key={item.id}>
+                {filteredGrievances.length > 0 ? (
+                  filteredGrievances.map((item) => (
+                    <article
+                      className="cd-grievance-row"
+                      key={item.id}
+                      onClick={() => {
+                        if (item.rawId && item.rawId.length > 10) {
+                          navigate(`/complaint/${item.rawId}`);
+                        } else {
+                          navigate("/my-complaints");
+                        }
+                      }}
+                      title={`View details for ${item.title}`}
+                    >
                       <img
                         className="cd-grievance-thumb"
                         src={item.image}
                         alt=""
+                        onError={(e) => {
+                          if (item.fallbackImage) {
+                            e.currentTarget.src = item.fallbackImage;
+                          }
+                        }}
                       />
 
                       <div className={`cd-grievance-type cd-type-${item.type}`}>
@@ -369,7 +372,7 @@ export default function Dashboard() {
                         <strong>{item.title}</strong>
                         <div className="cd-grievance-meta">
                           <span>ID: {item.id}</span>
-                          <i />
+                          <span>•</span>
                           <span>{item.date}</span>
                         </div>
                       </div>
@@ -379,69 +382,83 @@ export default function Dashboard() {
                       <button
                         className="cd-row-arrow"
                         type="button"
-                        aria-label={`View ${item.title}`}
-                        onClick={() => selectNav("Track Status")}
+                        aria-label={`Open ${item.title}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (item.rawId && item.rawId.length > 10) {
+                            navigate(`/complaint/${item.rawId}`);
+                          } else {
+                            navigate("/my-complaints");
+                          }
+                        }}
                       >
-                        <ChevronRight size={20} />
+                        <LuChevronRight size={16} strokeWidth={2} />
                       </button>
                     </article>
                   ))
                 ) : (
                   <div className="cd-empty-state">
-                    No grievances match “{search}”.
+                    No grievances match "{searchTerm}".
                   </div>
                 )}
               </div>
             </section>
 
+            {/* Right Card: Quick Actions */}
             <section className="cd-panel cd-quick-panel">
               <div className="cd-panel-heading">
                 <h2>
-                  <LayoutGrid size={25} />
+                  <LuLayoutGrid size={18} strokeWidth={2.2} />
                   Quick Actions
                 </h2>
               </div>
 
               <div className="cd-quick-actions-grid">
-                {quickActions.map(({ title, text, Icon, action, count }) => (
+                {quickActions.map(({ title, subtitle, Icon, action, badge }) => (
                   <button
                     className="cd-quick-action"
                     key={title}
                     type="button"
-                    onClick={() => selectNav(action)}
+                    onClick={action}
                   >
                     <span className="cd-quick-icon">
-                      <Icon size={25} />
-                      {count && <i>{count}</i>}
+                      <Icon size={18} strokeWidth={2.2} />
+                      {badge && <i>{badge}</i>}
                     </span>
 
                     <span className="cd-quick-copy">
                       <strong>{title}</strong>
-                      <small>{text}</small>
+                      <small>{subtitle}</small>
                     </span>
 
-                    <ChevronRight
+                    <LuChevronRight
                       className="cd-quick-chevron"
-                      size={18}
+                      size={14}
+                      strokeWidth={2.4}
                     />
                   </button>
                 ))}
               </div>
             </section>
           </div>
-
-          <footer className="cd-footer">
-            <span>
-              <MapPin size={13} />
-              Karnataka Citizen Services
-            </span>
-            <span>
-              <CalendarDays size={13} />
-              Updated 18 Oct 2026
-            </span>
-          </footer>
         </main>
       </div>
+
+      {/* Modals & Drawers */}
+      <TrackModal
+        isOpen={isTrackModalOpen}
+        onClose={() => setIsTrackModalOpen(false)}
+      />
+
+      <NotificationDrawer
+        isOpen={isNotifOpen}
+        onClose={() => setIsNotifOpen(false)}
+      />
+
+      <HelpSupportModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
     </div>
   );
 }
