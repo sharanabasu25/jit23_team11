@@ -1,26 +1,29 @@
 /* ==========================================================================
    SPGMS — Citizen Login Page Scoped Styles
-   Exact reproduction of design reference screenshot:
-   Vanilla Cream + Midnight Indigo + Vidhana Soudha Architectural Silhouette
+   Consistent with Citizen Dashboard Design System:
+   Primary Navy (#102748), Page BG (#F4F7FC), White Card, Subtle Shadows
    ========================================================================== */
 
 :root {
-  --cl-midnight-indigo: #191970;
-  --cl-deep-indigo: #10143A;
-  --cl-vanilla-cream: #F8F3E8;
-  --cl-soft-ivory: #FFFCF5;
-  --cl-champagne-gold: #F3DFA5;
-  --cl-soft-gold: #D8B878;
-  --cl-muted-lavender: #E8E7F5;
-  --cl-dark-text: #25263A;
-  --cl-secondary-text: #777789;
-  --cl-border: #E5DDCE;
+  --cl-navy: #102748;
+  --cl-navy-deep: #0D2140;
+  --cl-action-blue: #263FD5;
+  --cl-page-bg: #F4F7FC;
+  --cl-card-bg: #FFFFFF;
+  --cl-pale-blue: #EAF2FC;
+  --cl-lavender: #E9EAFE;
+  --cl-text-main: #14284A;
+  --cl-text-muted: #7183AD;
+  --cl-accent-yellow: #FFD15A;
+  --cl-border: #E2EAF5;
+  --cl-success-green: #0B806B;
 }
 
 /* Full page wrapper */
 .cl-page {
   min-height: 100vh;
-  background-color: var(--cl-vanilla-cream);
+  min-height: 100dvh;
+  background-color: var(--cl-page-bg);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -29,78 +32,79 @@
   box-sizing: border-box;
 }
 
-/* Top Navbar */
+/* Top Navbar (Consistent with Citizen Dashboard Header: Dark Navy #102748, 56px height) */
 .cl-navbar {
-  background-color: var(--cl-midnight-indigo);
-  border-bottom: 2px solid var(--cl-soft-gold);
-  padding: 0 32px;
-  height: 66px;
+  background-color: var(--cl-navy);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 24px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
-  z-index: 20;
+  position: sticky;
+  top: 0;
+  z-index: 50;
   box-sizing: border-box;
-  box-shadow: 0 4px 15px rgba(16, 20, 58, 0.2);
+  box-shadow: 0 2px 10px rgba(13, 33, 64, 0.15);
 }
 
 .cl-nav-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
 }
 
 .cl-nav-logo-box {
-  width: 38px;
-  height: 38px;
-  background-color: var(--cl-deep-indigo);
-  border: 1.5px solid var(--cl-soft-gold);
+  width: 34px;
+  height: 34px;
+  background-color: #F7E6BD;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--cl-champagne-gold);
+  color: var(--cl-navy);
   flex-shrink: 0;
 }
 
 .cl-nav-title-group {
   display: flex;
   flex-direction: column;
+  line-height: 1.15;
 }
 
 .cl-nav-brand-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .cl-nav-brand-title {
   color: #FFFFFF;
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
   margin: 0;
   line-height: 1.2;
 }
 
 .cl-nav-citizen-badge {
-  background-color: var(--cl-champagne-gold);
-  color: var(--cl-midnight-indigo);
-  font-size: 10.5px;
+  background-color: var(--cl-accent-yellow);
+  color: var(--cl-navy);
+  font-size: 9px;
   font-weight: 800;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   line-height: 1.2;
 }
 
 .cl-nav-subtitle {
-  color: #C8C7DB;
-  font-size: 11px;
+  color: #8EA4C2;
+  font-size: 10.5px;
   margin: 1px 0 0;
   line-height: 1.2;
 }
@@ -109,18 +113,18 @@
 .cl-nav-links {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 18px;
 }
 
 .cl-nav-link {
   color: #D5D4E6;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 0;
+  padding: 5px 0;
   position: relative;
   transition: color 0.15s ease;
   cursor: pointer;
@@ -132,7 +136,7 @@
 
 .cl-nav-link.active {
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .cl-nav-link.active::after {
@@ -142,14 +146,14 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--cl-soft-gold);
+  background-color: var(--cl-accent-yellow);
   border-radius: 2px;
 }
 
 .cl-nav-divider {
   width: 1px;
-  height: 22px;
-  background-color: rgba(255, 255, 255, 0.22);
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.14);
   margin: 0 4px;
 }
 
@@ -157,7 +161,7 @@
   background: transparent;
   border: none;
   color: #D5D4E6;
-  font-size: 18px;
+  font-size: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,8 +183,8 @@
   color: #FFFFFF;
   font-size: 9px;
   font-weight: 700;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -190,9 +194,9 @@
 .cl-nav-user-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   color: #FFFFFF;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   background: transparent;
@@ -201,13 +205,13 @@
 }
 
 .cl-nav-avatar-circle {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background-color: var(--cl-champagne-gold);
-  color: var(--cl-midnight-indigo);
+  background-color: var(--cl-accent-yellow);
+  color: var(--cl-navy);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,21 +220,21 @@
 .cl-nav-logout-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 6px;
   background: transparent;
   color: #FFFFFF;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 5px 10px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .cl-nav-logout-btn:hover {
   background-color: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Main Hero Stage */
@@ -240,10 +244,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 36px 20px 48px;
+  padding: 12px 16px 16px;
   position: relative;
   box-sizing: border-box;
-  min-height: calc(100vh - 66px);
+  min-height: calc(100vh - 56px);
+  min-height: calc(100dvh - 56px);
+  overflow-y: auto;
 }
 
 /* Background Artwork */
@@ -259,52 +265,54 @@
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 440px;
-  max-width: 32vw;
+  width: 380px;
+  max-width: 28vw;
+  max-height: 26vh;
   height: auto;
-  opacity: 0.9;
+  opacity: 0.65;
 }
 
 .cl-bg-palace-right {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 440px;
-  max-width: 32vw;
+  width: 380px;
+  max-width: 28vw;
+  max-height: 26vh;
   height: auto;
-  opacity: 0.9;
+  opacity: 0.65;
 }
 
 .cl-motto-left {
   position: absolute;
-  left: 60px;
-  top: 130px;
-  color: #C2A979;
-  font-size: 13px;
+  left: 48px;
+  top: 90px;
+  color: var(--cl-text-muted);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 2.2px;
-  line-height: 1.65;
+  letter-spacing: 2px;
+  line-height: 1.6;
   text-transform: uppercase;
   z-index: 3;
 }
 
 .cl-motto-line {
-  width: 38px;
-  height: 2.5px;
-  background-color: var(--cl-soft-gold);
-  margin-top: 10px;
+  width: 30px;
+  height: 2px;
+  background-color: var(--cl-accent-yellow);
+  margin-top: 8px;
   border-radius: 2px;
 }
 
 .cl-motto-right {
   position: absolute;
-  right: 60px;
-  top: 130px;
-  color: #C2A979;
-  font-size: 13px;
+  right: 48px;
+  top: 90px;
+  color: var(--cl-text-muted);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 2.2px;
-  line-height: 1.65;
+  letter-spacing: 2px;
+  line-height: 1.6;
   text-transform: uppercase;
   text-align: right;
   z-index: 3;
@@ -318,77 +326,81 @@
   position: relative;
   z-index: 5;
   width: 100%;
-  max-width: 470px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: auto 0;
 }
 
 .cl-civic-emblem {
-  width: 58px;
-  height: 58px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background-color: var(--cl-midnight-indigo);
-  border: 2.5px solid var(--cl-soft-gold);
+  background-color: var(--cl-lavender);
+  border: 1.5px solid #CAD8EC;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--cl-champagne-gold);
-  box-shadow: 0 4px 14px rgba(25, 25, 112, 0.25);
-  margin-bottom: 12px;
+  color: var(--cl-navy);
+  box-shadow: 0 2px 8px rgba(16, 39, 72, 0.08);
+  margin-bottom: 8px;
 }
 
 .cl-gov-pill {
-  background-color: var(--cl-muted-lavender);
-  color: var(--cl-midnight-indigo);
-  font-size: 11px;
+  background-color: var(--cl-pale-blue);
+  color: var(--cl-navy);
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  padding: 4px 14px;
+  padding: 3px 12px;
   border-radius: 20px;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.2;
+  border: 1px solid #D7E4F5;
 }
 
 .cl-hero-title {
-  color: var(--cl-midnight-indigo);
-  font-size: 32px;
+  color: var(--cl-navy);
+  font-size: 24px;
   font-weight: 800;
-  margin: 0 0 6px;
+  margin: 0 0 3px;
   letter-spacing: -0.02em;
   text-align: center;
+  line-height: 1.2;
 }
 
 .cl-hero-subtitle {
-  color: var(--cl-secondary-text);
-  font-size: 14.5px;
-  margin: 0 0 24px;
+  color: var(--cl-text-muted);
+  font-size: 13px;
+  margin: 0 0 16px;
   text-align: center;
+  line-height: 1.35;
 }
 
-/* Login Card */
+/* Login Card (Clean white surface, rounded corners, subtle shadow, thin navy top border) */
 .cl-card {
   background-color: #FFFFFF;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid var(--cl-border);
-  border-top: 3.5px solid var(--cl-midnight-indigo);
-  box-shadow: 0 10px 30px rgba(25, 25, 112, 0.07), 0 4px 12px rgba(0, 0, 0, 0.03);
-  padding: 32px 34px;
+  border-top: 3.5px solid var(--cl-navy);
+  box-shadow: 0 8px 24px rgba(16, 39, 72, 0.08), 0 2px 6px rgba(16, 39, 72, 0.04);
+  padding: 22px 28px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .cl-form-group {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .cl-label {
   display: block;
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: var(--cl-dark-text);
-  margin-bottom: 8px;
+  color: var(--cl-text-main);
+  margin-bottom: 5px;
 }
 
 .cl-input-wrapper {
@@ -399,21 +411,21 @@
 
 .cl-input-icon {
   position: absolute;
-  left: 14px;
-  color: #8C8C9E;
-  font-size: 16px;
+  left: 12px;
+  color: var(--cl-text-muted);
+  font-size: 15px;
   pointer-events: none;
 }
 
 .cl-input {
   width: 100%;
-  height: 46px;
-  padding: 0 14px 0 42px;
+  height: 40px;
+  padding: 0 12px 0 38px;
   border-radius: 8px;
   border: 1px solid var(--cl-border);
-  background-color: #FAFAFA;
-  font-size: 14px;
-  color: var(--cl-dark-text);
+  background-color: #FFFFFF;
+  font-size: 13.5px;
+  color: var(--cl-text-main);
   box-sizing: border-box;
   outline: none;
   transition: all 0.15s ease;
@@ -421,22 +433,22 @@
 }
 
 .cl-input:focus {
-  border-color: var(--cl-midnight-indigo);
+  border-color: var(--cl-action-blue);
   background-color: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.1);
+  box-shadow: 0 0 0 3px rgba(38, 63, 213, 0.12);
 }
 
 .cl-input::placeholder {
-  color: #9CA3AF;
+  color: #94A3B8;
 }
 
 .cl-password-toggle {
   position: absolute;
-  right: 12px;
+  right: 10px;
   background: transparent;
   border: none;
-  color: #8C8C9E;
-  font-size: 17px;
+  color: var(--cl-text-muted);
+  font-size: 16px;
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -445,38 +457,38 @@
 }
 
 .cl-password-toggle:hover {
-  color: var(--cl-dark-text);
+  color: var(--cl-text-main);
 }
 
 .cl-remember-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 16px 0 20px;
+  margin: 10px 0 14px;
 }
 
 .cl-checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--cl-dark-text);
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--cl-text-main);
   font-weight: 500;
   cursor: pointer;
   user-select: none;
 }
 
 .cl-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--cl-midnight-indigo);
+  width: 15px;
+  height: 15px;
+  accent-color: var(--cl-navy);
   cursor: pointer;
   border-radius: 4px;
 }
 
 .cl-forgot-link {
-  color: var(--cl-midnight-indigo);
-  font-size: 14px;
+  color: var(--cl-navy);
+  font-size: 12.5px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -486,16 +498,18 @@
 }
 
 .cl-forgot-link:hover {
+  color: var(--cl-action-blue);
   text-decoration: underline;
 }
 
+/* Primary Sign In Button (Navy) */
 .cl-submit-btn {
   width: 100%;
-  height: 48px;
-  background-color: var(--cl-midnight-indigo);
+  height: 42px;
+  background-color: var(--cl-navy);
   color: #FFFFFF;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -509,7 +523,9 @@
 }
 
 .cl-submit-btn:hover:not(:disabled) {
-  background-color: var(--cl-deep-indigo);
+  background-color: var(--cl-navy-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 39, 72, 0.2);
 }
 
 .cl-submit-btn:disabled {
@@ -521,9 +537,9 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 20px 0;
-  color: var(--cl-secondary-text);
-  font-size: 13px;
+  margin: 14px 0;
+  color: var(--cl-text-muted);
+  font-size: 12px;
 }
 
 .cl-divider-line {
@@ -533,17 +549,19 @@
 }
 
 .cl-divider-text {
-  padding: 0 12px;
+  padding: 0 10px;
+  font-size: 11.5px;
 }
 
+/* Secondary Button (Subtle Outline Button in Navy/White, replacing cream/gold) */
 .cl-register-btn {
   width: 100%;
-  height: 46px;
-  background-color: #FCF8ED;
-  border: 1.5px solid var(--cl-soft-gold);
-  color: #8A6520;
-  font-size: 14.5px;
-  font-weight: 700;
+  height: 40px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--cl-border);
+  color: var(--cl-navy);
+  font-size: 13.5px;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -557,41 +575,41 @@
 }
 
 .cl-register-btn:hover {
-  background-color: #F8F0DC;
-  border-color: #C5A056;
-  color: #6D4F14;
+  background-color: var(--cl-pale-blue);
+  border-color: var(--cl-action-blue);
+  color: var(--cl-action-blue);
 }
 
 /* Officer Section below card */
 .cl-officer-section {
-  margin-top: 24px;
+  margin-top: 12px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .cl-secure-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--cl-secondary-text);
-  font-size: 13px;
+  color: var(--cl-text-muted);
+  font-size: 11.5px;
   font-weight: 500;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .cl-officer-query {
-  color: var(--cl-secondary-text);
-  font-size: 13.5px;
+  color: var(--cl-text-muted);
+  font-size: 12px;
   margin: 0;
 }
 
 .cl-officer-link {
-  color: var(--cl-midnight-indigo);
-  font-size: 14px;
-  font-weight: 700;
+  color: var(--cl-navy);
+  font-size: 12.5px;
+  font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
   display: inline-flex;
@@ -600,15 +618,15 @@
 }
 
 .cl-officer-link:hover {
-  color: var(--cl-deep-indigo);
+  color: var(--cl-action-blue);
 }
 
 /* Alerts */
 .cl-alert {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 8px;
-  font-size: 13.5px;
-  margin-bottom: 16px;
+  font-size: 12.5px;
+  margin-bottom: 12px;
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -621,13 +639,13 @@
 }
 
 .cl-alert-info {
-  background-color: #F0F4FF;
-  color: #191970;
-  border: 1px solid rgba(25, 25, 112, 0.2);
+  background-color: var(--cl-pale-blue);
+  color: var(--cl-navy);
+  border: 1px solid rgba(16, 39, 72, 0.2);
 }
 
-/* Responsive */
-@media (max-width: 1100px) {
+/* Responsive & Viewport Adjustments */
+@media (max-width: 1200px), (max-height: 720px) {
   .cl-motto-left, .cl-motto-right {
     display: none;
   }
@@ -638,8 +656,8 @@
     display: none;
   }
   .cl-bg-palace-left, .cl-bg-palace-right {
-    width: 320px;
-    opacity: 0.6;
+    width: 260px;
+    opacity: 0.45;
   }
 }
 
@@ -648,16 +666,60 @@
     padding: 0 16px;
   }
   .cl-card {
-    padding: 24px 20px;
+    padding: 18px 18px;
   }
   .cl-hero-title {
-    font-size: 26px;
+    font-size: 22px;
   }
   .cl-hero-stage {
-    padding: 24px 14px 36px;
+    padding: 16px 14px 24px;
   }
   .cl-bg-palace-left, .cl-bg-palace-right {
-    opacity: 0.35;
-    width: 240px;
+    opacity: 0.25;
+    width: 180px;
+  }
+}
+
+/* Compact scaling for shorter viewports (e.g. 1366x768 with browser chrome) */
+@media (max-height: 700px) {
+  .cl-hero-stage {
+    padding: 8px 16px 12px;
+  }
+  .cl-civic-emblem {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 4px;
+  }
+  .cl-hero-title {
+    font-size: 21px;
+    margin-bottom: 2px;
+  }
+  .cl-hero-subtitle {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .cl-card {
+    padding: 16px 22px;
+  }
+  .cl-form-group {
+    margin-bottom: 9px;
+  }
+  .cl-input {
+    height: 38px;
+  }
+  .cl-remember-row {
+    margin: 8px 0 10px;
+  }
+  .cl-submit-btn {
+    height: 38px;
+  }
+  .cl-divider-row {
+    margin: 10px 0;
+  }
+  .cl-register-btn {
+    height: 36px;
+  }
+  .cl-officer-section {
+    margin-top: 8px;
   }
 }

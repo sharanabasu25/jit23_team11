@@ -9,13 +9,14 @@
   --cd-navy-deep: #0D2140;
   --cd-blue-primary: #263FD5;
   --cd-lavender: #E9EAFE;
-  --cd-page-bg: #F5F8FC;
+  --cd-page-bg: #F4F7FC;
   --cd-card-bg: #FFFFFF;
-  --cd-text-main: #12234A;
+  --cd-pale-blue: #EAF2FC;
+  --cd-text-main: #14284A;
   --cd-text-muted: #7183AD;
   --cd-accent-yellow: #FFD15A;
-  --cd-success-green: #087E68;
-  --cd-border: #E7EDF6;
+  --cd-success-green: #0B806B;
+  --cd-border: #E2EAF5;
   --cd-status-pending-bg: #FFF2D5;
   --cd-status-pending-text: #92400E;
   --cd-status-resolved-bg: #D7F5ED;

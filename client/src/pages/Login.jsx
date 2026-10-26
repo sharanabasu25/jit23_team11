@@ -211,8 +211,8 @@ function Login() {
           {/* Top Circular Civic Emblem */}
           <div className="cl-civic-emblem">
             <svg
-              width="28"
-              height="28"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -356,7 +356,7 @@ function Login() {
           {/* Officer Switcher & Security Notice below Card */}
           <div className="cl-officer-section">
             <div className="cl-secure-badge">
-              <FiShield size={14} style={{ color: "var(--cl-soft-gold)" }} />
+              <FiShield size={14} style={{ color: "var(--cl-action-blue, #263FD5)" }} />
               <span>Secure access to your civic services</span>
             </div>
 

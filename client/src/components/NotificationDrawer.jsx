@@ -95,79 +95,94 @@ export default function NotificationDrawer({ isOpen, onClose }) {
     <div
       style={{
         position: "absolute",
-        top: "60px",
+        top: "64px",
         right: "20px",
-        width: "360px",
-        maxWidth: "calc(100vw - 40px)",
-        background: "var(--soft-ivory)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-xl)",
-        border: "1px solid var(--soft-border)",
-        borderTop: "3px solid var(--warm-gold)",
+        width: "370px",
+        maxWidth: "calc(100vw - 32px)",
+        maxHeight: "calc(100vh - 84px)",
+        background: "#FFFFFF",
+        borderRadius: "14px",
+        boxShadow: "0 12px 36px rgba(16, 39, 72, 0.16), 0 2px 8px rgba(16, 39, 72, 0.06)",
+        border: "1px solid #E2EAF5",
         zIndex: 1050,
         overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
         animation: "slideUp 200ms ease"
       }}
       role="region"
-      aria-label="Notifications panel"
+      aria-label="Civic Alerts & Updates panel"
     >
+      {/* Header */}
       <div
         style={{
-          padding: "16px 20px",
-          background: "var(--deep-indigo)",
-          color: "var(--vanilla-cream)",
+          padding: "14px 18px",
+          background: "#102748",
+          color: "#FFFFFF",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center"
+          alignItems: "center",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <FiBell style={{ color: "var(--warm-gold)" }} />
-          <h4 style={{ margin: 0, color: "var(--vanilla-cream)", fontSize: "16px", fontWeight: "600" }}>
+          <FiBell style={{ color: "#FFD15A", fontSize: "17px" }} />
+          <h4 style={{ margin: 0, color: "#FFFFFF", fontSize: "15px", fontWeight: "700", letterSpacing: "0.2px" }}>
             Civic Alerts & Updates
           </h4>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <button
             onClick={markAllRead}
+            type="button"
             style={{
               background: "transparent",
               border: "none",
-              color: "var(--warm-gold)",
+              color: "#FFD15A",
               fontSize: "12px",
+              fontWeight: "600",
               cursor: "pointer",
-              padding: "2px 6px"
+              padding: "3px 6px",
+              borderRadius: "4px",
+              transition: "opacity 0.15s ease"
             }}
+            title="Mark all notifications as read"
           >
             Mark all read
           </button>
           <button
             onClick={onClose}
+            type="button"
             style={{
               background: "transparent",
               border: "none",
-              color: "var(--muted-lavender)",
+              color: "#8EA4C2",
               cursor: "pointer",
-              padding: "2px",
+              padding: "4px",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
+              borderRadius: "4px",
+              transition: "color 0.15s ease"
             }}
-            aria-label="Close notifications"
+            aria-label="Close notifications popup"
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#FFFFFF")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#8EA4C2")}
           >
             <FiX size={18} />
           </button>
         </div>
       </div>
 
-      <div style={{ maxHeight: "380px", overflowY: "auto", padding: "10px 0" }}>
+      {/* Notifications list */}
+      <div style={{ flex: 1, maxHeight: "360px", overflowY: "auto", padding: "0" }}>
         {loading ? (
-          <div style={{ padding: "30px", textAlign: "center", color: "var(--muted-grey)", fontSize: "14px" }}>
+          <div style={{ padding: "30px", textAlign: "center", color: "#7183AD", fontSize: "13.5px" }}>
             Checking grievance updates...
           </div>
         ) : notifications.length === 0 ? (
-          <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--muted-grey)" }}>
-            <p style={{ margin: 0, fontWeight: "500", fontSize: "14px" }}>No new notifications</p>
-            <p style={{ margin: "5px 0 0", fontSize: "12px" }}>You are up to date on all civic updates.</p>
+          <div style={{ padding: "36px 20px", textAlign: "center", color: "#7183AD" }}>
+            <p style={{ margin: 0, fontWeight: "600", fontSize: "14px", color: "#14284A" }}>No new notifications</p>
+            <p style={{ margin: "4px 0 0", fontSize: "12px" }}>You are up to date on all civic updates.</p>
           </div>
         ) : (
           notifications.map((item) => (
@@ -175,10 +190,11 @@ export default function NotificationDrawer({ isOpen, onClose }) {
               key={item.id}
               onClick={() => handleNotificationClick(item)}
               style={{
-                padding: "12px 18px",
-                borderBottom: "1px solid var(--soft-border)",
+                padding: "12px 16px",
+                borderBottom: "1px solid #E2EAF5",
                 cursor: item.complaintId ? "pointer" : "default",
-                backgroundColor: item.unread ? "var(--muted-lavender)" : "transparent",
+                backgroundColor: item.unread ? "#F4F7FC" : "#FFFFFF",
+                borderLeft: item.unread ? "3px solid #263FD5" : "3px solid transparent",
                 transition: "background-color 150ms ease",
                 display: "flex",
                 gap: "12px",
@@ -187,8 +203,8 @@ export default function NotificationDrawer({ isOpen, onClose }) {
             >
               <div
                 style={{
-                  width: "28px",
-                  height: "28px",
+                  width: "30px",
+                  height: "30px",
                   borderRadius: "50%",
                   marginTop: "2px",
                   display: "flex",
@@ -197,16 +213,16 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                   flexShrink: 0,
                   backgroundColor:
                     item.type === "resolved"
-                      ? "var(--success-bg)"
+                      ? "#D7F5ED"
                       : item.type === "progress"
-                      ? "var(--warning-bg)"
-                      : "var(--soft-ivory)",
+                      ? "#DDEBFF"
+                      : "#E9EAFE",
                   color:
                     item.type === "resolved"
-                      ? "var(--success-green)"
+                      ? "#0B806B"
                       : item.type === "progress"
-                      ? "var(--warning-amber)"
-                      : "var(--midnight-indigo)"
+                      ? "#263FD5"
+                      : "#102748"
                 }}
               >
                 {item.type === "resolved" ? (
@@ -219,17 +235,17 @@ export default function NotificationDrawer({ isOpen, onClose }) {
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <h5 style={{ margin: 0, fontSize: "13px", fontWeight: "600", color: "var(--dark-charcoal)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" }}>
+                  <h5 style={{ margin: 0, fontSize: "13px", fontWeight: "700", color: "#14284A" }}>
                     {item.title}
                   </h5>
-                  <span style={{ fontSize: "11px", color: "var(--muted-grey)" }}>{item.time}</span>
+                  <span style={{ fontSize: "11px", color: "#7183AD", whiteSpace: "nowrap" }}>{item.time}</span>
                 </div>
                 <p
                   style={{
-                    margin: "4px 0 0",
+                    margin: "3px 0 0",
                     fontSize: "12px",
-                    color: "var(--muted-grey)",
+                    color: "#7183AD",
                     lineHeight: "1.4"
                   }}
                 >
@@ -240,8 +256,8 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                     style={{
                       display: "inline-block",
                       marginTop: "5px",
-                      fontSize: "11px",
-                      color: "var(--midnight-indigo)",
+                      fontSize: "11.5px",
+                      color: "#263FD5",
                       fontWeight: "600"
                     }}
                   >
@@ -254,15 +270,16 @@ export default function NotificationDrawer({ isOpen, onClose }) {
         )}
       </div>
 
+      {/* Footer */}
       <div
         style={{
-          padding: "10px 18px",
-          background: "var(--soft-ivory)",
-          borderTop: "1px solid var(--soft-border)",
+          padding: "9px 16px",
+          background: "#F4F7FC",
+          borderTop: "1px solid #E2EAF5",
           textAlign: "center"
         }}
       >
-        <span style={{ fontSize: "11px", color: "var(--muted-grey)" }}>
+        <span style={{ fontSize: "11px", color: "#7183AD", fontWeight: "500" }}>
           Official alerts from Karnataka Municipal Services
         </span>
       </div>

@@ -3,45 +3,61 @@
    ========================================================================== */
 
 :root {
-  /* Core Theme Palette */
-  --vanilla-cream: #FFF8E7;     /* Main page background */
-  --soft-ivory: #FFFCF5;        /* Cards, forms, content panels */
-  --midnight-indigo: #191970;   /* Primary buttons, navigation, headings */
-  --deep-indigo: #10143A;       /* Sidebar, dark header sections, emphasis */
-  --muted-lavender: #E8E7F5;    /* Secondary backgrounds, selected menu items */
-  --warm-gold: #D4A85A;         /* Small highlights, decorative accents */
-  --warm-gold-hover: #b88d44;
-  --warm-gold-light: rgba(212, 168, 90, 0.15);
-  --dark-charcoal: #25263A;     /* Main body text */
-  --muted-grey: #777789;        /* Secondary text, descriptions, labels */
-  --soft-border: #E7E0D3;       /* Input borders, dividers, card outlines */
-  --soft-border-hover: #cfc6b6;
+  /* ==========================================================================
+     SPGMS — Citizen Portal Design Tokens (Canonical Dashboard System)
+     ========================================================================== */
+  --spgms-navy: #102748;            /* Primary navy */
+  --spgms-navy-deep: #0D2140;       /* Deep navy */
+  --spgms-action-blue: #263FD5;     /* Action blue */
+  --spgms-page-bg: #F4F7FC;         /* Page background */
+  --spgms-card-bg: #FFFFFF;         /* Card background */
+  --spgms-pale-blue: #EAF2FC;       /* Pale blue */
+  --spgms-lavender: #E9EAFE;        /* Lavender icon background */
+  --spgms-text-main: #14284A;       /* Main text */
+  --spgms-text-muted: #7183AD;      /* Muted text */
+  --spgms-accent-yellow: #FFD15A;   /* Accent yellow */
+  --spgms-border: #E2EAF5;          /* Border */
+  --spgms-success-green: #0B806B;   /* Success green */
+
+  /* Aliased Core Tokens for application-wide theme consistency */
+  --vanilla-cream: #F4F7FC;         /* Page background */
+  --soft-ivory: #FFFFFF;            /* Cards, forms, content panels */
+  --midnight-indigo: #102748;       /* Primary buttons, navigation, headings */
+  --deep-indigo: #0D2140;           /* Dark header sections, emphasis */
+  --muted-lavender: #E9EAFE;        /* Lavender icon background, secondary surfaces */
+  --warm-gold: #FFD15A;             /* Yellow accents only */
+  --warm-gold-hover: #E6BC50;
+  --warm-gold-light: rgba(255, 209, 90, 0.2);
+  --dark-charcoal: #14284A;         /* Main body text */
+  --muted-grey: #7183AD;            /* Secondary text, descriptions, labels */
+  --soft-border: #E2EAF5;           /* Input borders, dividers, card outlines */
+  --soft-border-hover: #CAD8EC;
   
   /* Status Colors */
-  --success-green: #237A57;     /* Resolved grievances & success states */
-  --success-bg: #EAF4EE;
-  --warning-amber: #A66A12;     /* Pending / in-progress statuses */
-  --warning-bg: #FDF4E5;
-  --error-red: #B42335;         /* Failed actions, validation errors */
-  --error-bg: #FBEBED;
-  --info-blue: #1b498f;
-  --info-bg: #eaf1fa;
+  --success-green: #0B806B;         /* Resolved grievances & success states */
+  --success-bg: #D7F5ED;
+  --warning-amber: #92400E;         /* Pending / in-progress statuses */
+  --warning-bg: #FFF2D5;
+  --error-red: #B42335;             /* Failed actions, validation errors */
+  --error-bg: #FDF2F2;
+  --info-blue: #263FD5;
+  --info-bg: #EAF2FC;
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(16, 20, 58, 0.05), 0 1px 2px rgba(16, 20, 58, 0.03);
-  --shadow-md: 0 4px 12px rgba(16, 20, 58, 0.06), 0 2px 4px rgba(16, 20, 58, 0.03);
-  --shadow-lg: 0 10px 25px -3px rgba(16, 20, 58, 0.08), 0 4px 10px -2px rgba(16, 20, 58, 0.04);
-  --shadow-xl: 0 20px 35px -5px rgba(16, 20, 58, 0.12), 0 10px 15px -5px rgba(16, 20, 58, 0.06);
+  --shadow-sm: 0 1px 3px rgba(16, 39, 72, 0.04), 0 1px 2px rgba(16, 39, 72, 0.02);
+  --shadow-md: 0 4px 12px rgba(16, 39, 72, 0.06), 0 2px 4px rgba(16, 39, 72, 0.03);
+  --shadow-lg: 0 10px 25px -3px rgba(16, 39, 72, 0.08), 0 4px 10px -2px rgba(16, 39, 72, 0.04);
+  --shadow-xl: 0 20px 35px -5px rgba(16, 39, 72, 0.12), 0 10px 15px -5px rgba(16, 39, 72, 0.06);
 
   /* Border Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
   
   /* Transitions */
@@ -157,22 +173,22 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .spgms-btn:focus-visible {
-  outline: 2px solid var(--warm-gold);
+  outline: 2px solid var(--spgms-action-blue);
   outline-offset: 2px;
 }
 
 .spgms-btn-primary {
   background-color: var(--midnight-indigo);
-  color: var(--vanilla-cream);
+  color: #FFFFFF;
   border-color: var(--midnight-indigo);
-  box-shadow: 0 2px 4px rgba(25, 25, 112, 0.2);
+  box-shadow: 0 2px 4px rgba(16, 39, 72, 0.15);
 }
 
 .spgms-btn-primary:hover:not(:disabled) {
   background-color: var(--deep-indigo);
   border-color: var(--deep-indigo);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(25, 25, 112, 0.25);
+  box-shadow: 0 4px 8px rgba(16, 39, 72, 0.22);
 }
 
 .spgms-btn-primary:active:not(:disabled) {
@@ -180,15 +196,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .spgms-btn-secondary {
-  background-color: var(--soft-ivory);
+  background-color: #FFFFFF;
   color: var(--midnight-indigo);
   border-color: var(--soft-border);
 }
 
 .spgms-btn-secondary:hover:not(:disabled) {
-  background-color: var(--muted-lavender);
-  border-color: #d4cee4;
-  color: var(--deep-indigo);
+  background-color: var(--spgms-pale-blue);
+  border-color: var(--spgms-action-blue);
+  color: var(--midnight-indigo);
 }
 
 .spgms-btn-gold {
@@ -286,8 +302,8 @@ h1, h2, h3, h4, h5, h6 {
 .spgms-select:focus,
 .spgms-textarea:focus {
   outline: none;
-  border-color: var(--midnight-indigo);
-  box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.12);
+  border-color: var(--spgms-action-blue);
+  box-shadow: 0 0 0 3px rgba(38, 63, 213, 0.12);
   background-color: #ffffff;
 }
 
@@ -425,8 +441,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .spgms-table thead {
-  background-color: var(--deep-indigo);
-  color: var(--vanilla-cream);
+  background-color: var(--midnight-indigo);
+  color: #FFFFFF;
 }
 
 .spgms-table th {
@@ -435,7 +451,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 13px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--warm-gold);
+  border-bottom: 2px solid var(--deep-indigo);
 }
 
 .spgms-table td {
@@ -461,7 +477,7 @@ h1, h2, h3, h4, h5, h6 {
 .spgms-modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(16, 20, 58, 0.65);
+  background-color: rgba(13, 33, 64, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -473,14 +489,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .spgms-modal-card {
-  background-color: var(--soft-ivory);
+  background-color: #FFFFFF;
   border: 1px solid var(--soft-border);
-  border-top: 4px solid var(--warm-gold);
+  border-top: 3px solid var(--midnight-indigo);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   width: 100%;
-  max-width: 540px;
-  padding: 28px;
+  max-width: 500px;
+  padding: 26px 28px;
   box-sizing: border-box;
   animation: slideUp 250ms cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;

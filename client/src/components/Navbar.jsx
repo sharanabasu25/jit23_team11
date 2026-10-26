@@ -52,21 +52,21 @@ function Navbar() {
     textDecoration: "none",
     transition: "all var(--transition-fast)",
     backgroundColor: active ? "var(--muted-lavender)" : "transparent",
-    color: active ? "var(--midnight-indigo)" : "var(--vanilla-cream)",
-    border: active ? "1px solid var(--warm-gold)" : "1px solid transparent"
+    color: active ? "var(--midnight-indigo)" : "#FFFFFF",
+    border: active ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid transparent"
   });
 
   return (
     <>
       <header
         style={{
-          backgroundColor: "var(--deep-indigo)",
-          borderBottom: "2px solid var(--warm-gold)",
-          color: "var(--vanilla-cream)",
+          backgroundColor: "var(--midnight-indigo)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          color: "#FFFFFF",
           position: "sticky",
           top: 0,
           zIndex: 1000,
-          boxShadow: "0 4px 15px rgba(16, 20, 58, 0.25)"
+          boxShadow: "0 2px 10px rgba(13, 33, 64, 0.15)"
         }}
       >
         {/* Top Government Micro-Bar */}
@@ -122,16 +122,16 @@ function Navbar() {
           >
             <div
               style={{
-                width: "42px",
-                height: "42px",
+                width: "40px",
+                height: "40px",
                 borderRadius: "var(--radius-md)",
-                backgroundColor: "var(--midnight-indigo)",
-                border: "1.5px solid var(--warm-gold)",
+                backgroundColor: "#F7E6BD",
+                border: "none",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "22px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
+                fontSize: "20px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)"
               }}
             >
               🏛

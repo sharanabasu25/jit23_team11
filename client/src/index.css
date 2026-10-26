@@ -13,8 +13,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  background-color: var(--vanilla-cream);
-  color: var(--dark-charcoal);
+  background-color: var(--spgms-page-bg, #F4F7FC);
+  color: var(--spgms-text-main, #14284A);
   min-height: 100vh;
 }
 
@@ -32,14 +32,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--vanilla-cream);
+  background: var(--spgms-page-bg, #F4F7FC);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--soft-border);
+  background: var(--spgms-border, #E2EAF5);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-grey);
+  background: var(--spgms-text-muted, #7183AD);
 }
